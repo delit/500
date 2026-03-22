@@ -1279,6 +1279,8 @@
 
   function startGame() {
     const hooks = window.OneTo500Hooks;
+    const isTwoPlayer = Boolean(hooks && hooks.skipRunStatsBump);
+    trackUmami("game-run-start", { mode: isTwoPlayer ? "two-player" : "solo" });
     if (!hooks || !hooks.skipRunStatsBump) {
       bumpStatsRunStarted();
     }
