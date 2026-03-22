@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en" class="dark h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" id="meta-theme" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  <meta name="application-name" content="1–500" />
+  <meta name="apple-mobile-web-app-title" content="1–500" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>1 to 500 Game — Free online number ordering puzzle (1–500)</title>
+  <meta name="description" content="Free browser puzzle: get 10 random numbers from 1–500. Place each in ascending order in 10 slots—one invalid move ends the run. Play offline as a PWA." />
+  <meta name="keywords" content="1 to 500 game, number puzzle, ordering game, brain teaser, browser game, free online game, ascending order, PWA game, probability puzzle" />
+  <link rel="canonical" href="./index.html" />
+  <link rel="alternate" hreflang="en" href="./index.html" />
+  <link rel="alternate" hreflang="x-default" href="./index.html" />
+  <!-- When deployed, replace ./ below with your absolute site URL (https://…) for best social & AI previews -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="The 1 to 500 Game" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="1 to 500 Game — Free online number ordering puzzle" />
+  <meta property="og:description" content="Place 10 random draws from 1–500 in strict ascending order. One wrong confirm ends the run. Works offline as an installable web app." />
+  <meta property="og:url" content="./index.html" />
+  <meta property="og:image" content="./icon.svg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="1 to 500 Game — Free online number ordering puzzle" />
+  <meta name="twitter:description" content="Place 10 random draws from 1–500 in strict ascending order. One wrong confirm ends the run." />
+  <meta name="twitter:image" content="./icon.svg" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "./index.html#website",
+        "name": "The 1 to 500 Game",
+        "alternateName": ["1 to 500", "1–500 Game"],
+        "description": "Free web puzzle: ten random integers from 1 to 500 must be locked into slots in strictly increasing order.",
+        "inLanguage": "en",
+        "url": "./index.html"
+      },
+      {
+        "@type": "WebPage",
+        "@id": "./index.html#webpage",
+        "url": "./index.html",
+        "name": "1 to 500 Game — Free online number ordering puzzle",
+        "description": "Place 10 random numbers from 1–500 in ascending order in 10 slots. One invalid confirm ends the run. Installable PWA with offline play.",
+        "inLanguage": "en",
+        "isPartOf": { "@id": "./index.html#website" },
+        "about": { "@id": "./index.html#game" },
+        "mainEntity": { "@id": "./index.html#game" },
+        "speakable": {
+          "@type": "SpeakableSpecification",
+          "cssSelector": ["#seo-lead", "#seo-how-summary"]
+        }
+      },
+      {
+        "@type": "VideoGame",
+        "@id": "./index.html#game",
+        "name": "The 1 to 500 Game",
+        "alternateName": ["1 to 500", "1–500"],
+        "description": "Single-player browser puzzle. Each round reveals a random integer from 1 through 500. The player places or confirms each value into one of ten slots from top to bottom; locked values must stay strictly increasing. Filling all ten slots in valid order wins; an invalid confirmation ends the game.",
+        "genre": ["Puzzle", "Brain teaser", "Numbers"],
+        "playMode": "https://schema.org/SinglePlayer",
+        "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 1 },
+        "applicationCategory": "Game",
+        "gamePlatform": ["Web browser", "Progressive Web App"],
+        "operatingSystem": "Web browser",
+        "inLanguage": "en",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "./index.html#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is the 1 to 500 game?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "It is a free online puzzle where you receive 10 random numbers, each between 1 and 500. You place each number into one of 10 slots from top to bottom. Every locked number must be strictly larger than the one above it. If you confirm a placement that breaks that order, the run ends."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do you win the 1 to 500 game?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You win by successfully locking all 10 drawn numbers into the 10 slots so that, from slot 1 at the top through slot 10 at the bottom, each value is greater than the previous. Your best depth out of 10 is saved as a high score."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What ends a run in 1 to 500?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The run ends when you confirm a number in a slot such that the sequence of locked values is no longer strictly increasing from top to bottom."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does preview and confirm work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Tap an empty slot to preview the current draw there. Tap another empty slot to move the preview. Use the Confirm control on that row, or tap the same slot again, to lock the number in."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            headline: ["Manrope", "system-ui", "sans-serif"],
+            body: ["Inter", "system-ui", "sans-serif"],
+          },
+          colors: {
+            surface: "#0f172a",
+            "surface-low": "#121d23",
+            "surface-high": "#202b32",
+            "surface-highest": "#2b363d",
+            "surface-lowest": "#051015",
+            primary: "#a6c9f8",
+            tertiary: "#97cfe0",
+            "on-surface": "#d8e4ec",
+            "on-surface-muted": "#c4c6cc",
+            "on-primary-fixed": "#001c37",
+          },
+          animation: {
+            "pulse-soft": "pulse-soft 2.2s ease-in-out infinite",
+          },
+          keyframes: {
+            "pulse-soft": {
+              "0%, 100%": { opacity: "1", transform: "scale(1)" },
+              "50%": { opacity: "0.92", transform: "scale(1.02)" },
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* iOS Safari: avoid 100vh/layout sitting under dynamic browser chrome */
+    html {
+      height: 100%;
+      height: -webkit-fill-available;
+    }
+    body {
+      min-height: 100%;
+      min-height: -webkit-fill-available;
+      -webkit-tap-highlight-color: transparent;
+      font-family: Inter, system-ui, sans-serif;
+    }
+    /* Fixed bottom bars: safe area + extra clearance above home indicator / browser UI */
+    .safe-pb-bottom {
+      padding-bottom: calc(1.25rem + constant(safe-area-inset-bottom));
+      padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    }
+    @media (max-width: 640px) {
+      .safe-pb-bottom {
+        padding-bottom: calc(1.35rem + constant(safe-area-inset-bottom) + 12px);
+        padding-bottom: calc(1.35rem + env(safe-area-inset-bottom, 0px) + 12px);
+      }
+    }
+    .slot-roll-viewport {
+      height: 5.25rem;
+      overflow: hidden;
+      position: relative;
+      mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+    }
+    .slot-roll-strip {
+      will-change: transform;
+      transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .slot-roll-item {
+      height: 5.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Manrope, system-ui, sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+    .modal-backdrop {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-panel {
+      transform: translateY(1rem) scale(0.98);
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+    }
+    .modal-backdrop.is-open .modal-panel {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 60;
+    }
+    /* Empty slot hint: show on hover (mouse); faint always on touch */
+    .slot-empty-hint {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .group:hover .slot-empty-hint {
+        opacity: 0.88;
+      }
+    }
+    @media (hover: none), (pointer: coarse) {
+      .slot-empty-hint {
+        opacity: 0.4;
+      }
+    }
+    /* Game over: subtle staggered blink; keeps existing row colors (opacity only on card) */
+    @keyframes slot-gameover-blink {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      40% {
+        opacity: 0.42;
+      }
+      60% {
+        opacity: 0.42;
+      }
+    }
+    .slot-row-go-pulse > * {
+      animation: slot-gameover-blink 1.15s ease-in-out infinite;
+      animation-delay: var(--slot-go-delay, 0s);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .slot-row-go-pulse > * {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 dark:bg-surface dark:text-on-surface font-body antialiased selection:bg-primary/30 selection:text-primary overflow-x-hidden min-h-full transition-colors duration-300">
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+  <noscript>
+    <div class="max-w-md mx-auto p-6 text-center text-slate-800">
+      <p class="font-headline font-bold text-lg mb-2">The 1 to 500 Game</p>
+      <p class="text-sm leading-relaxed">This game needs JavaScript. In each run you get 10 random numbers from 1–500 and must lock them into 10 slots in strictly ascending order from top to bottom; one invalid placement ends the run.</p>
+    </div>
+  </noscript>
+
+  <!-- Start -->
+  <div id="screen-start" class="relative min-h-[100dvh] flex flex-col items-center justify-center px-8 pt-8 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))]">
+    <div class="fixed inset-0 pointer-events-none -z-10 opacity-30 dark:opacity-20">
+      <div class="absolute top-[12%] left-[8%] w-64 h-64 rounded-full bg-primary/20 dark:bg-primary/10 blur-[100px]"></div>
+      <div class="absolute bottom-[18%] right-[5%] w-80 h-80 rounded-full bg-tertiary/15 dark:bg-tertiary/10 blur-[120px]"></div>
+    </div>
+
+    <header class="w-full max-w-md flex flex-col items-center mb-10">
+      <p class="font-headline text-[0.65rem] tracking-[0.35em] uppercase text-sky-800 dark:text-tertiary/60 mb-3">The Game</p>
+      <h1 class="relative m-0 flex items-baseline gap-1 font-headline">
+        <span class="absolute -inset-8 bg-primary/5 rounded-full blur-3xl -z-10" aria-hidden="true"></span>
+        <span class="text-7xl sm:text-8xl font-extrabold tracking-tighter text-slate-950 dark:text-on-surface">1</span>
+        <span class="text-xl font-light text-sky-700 dark:text-tertiary/60 uppercase tracking-widest px-1">to</span>
+        <span class="text-7xl sm:text-8xl font-extrabold tracking-tighter text-slate-950 dark:text-on-surface">500</span>
+      </h1>
+    </header>
+
+    <div class="w-full max-w-sm text-center mb-12 px-2 space-y-3">
+      <p id="seo-lead" class="text-sm leading-relaxed text-slate-700 dark:text-on-surface-muted font-normal">
+        The challenge is simple: place 10 random numbers in ascending order. One wrong move ends the run.
+      </p>
+      <p class="text-sm leading-relaxed text-slate-700 dark:text-on-surface-muted font-normal">
+        How far can you go?
+      </p>
+      <div class="sr-only">
+        <h2 id="seo-how-heading">How to play</h2>
+        <p id="seo-how-summary">Ten draws from 1 to 500. Tap empty slots to preview the current number, then confirm to lock it. Order must stay strictly increasing from slot 1 through slot 10. Fill all ten to win.</p>
+      </div>
+    </div>
+
+    <div class="w-full max-w-xs">
+      <button type="button" id="btn-start-game" class="group relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] py-5 shadow-lg shadow-primary/20 dark:shadow-black/40 active:scale-[0.98] transition-all duration-300 animate-pulse-soft hover:shadow-xl hover:shadow-primary/25">
+        <span class="absolute inset-0 bg-white/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+        <span class="relative inline-flex items-center justify-center gap-2.5 font-headline font-extrabold text-sm uppercase tracking-[0.25em] text-on-primary-fixed">
+          <svg class="w-5 h-5 shrink-0 -ml-0.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" /></svg>
+          Start Game
+        </span>
+      </button>
+      <p class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-center font-body text-[10px] uppercase tracking-[0.2em] text-slate-600 dark:text-on-surface/35 tabular-nums">
+        <span>Best: <span id="start-high-score">0</span>/10</span>
+        <span class="text-slate-400/90 dark:text-on-surface/25" aria-hidden="true">·</span>
+        <span>Time: <span id="start-best-time">—</span></span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Game -->
+  <div id="screen-game" class="hidden min-h-[100dvh] flex flex-col bg-slate-100 dark:bg-surface transition-colors pt-[env(safe-area-inset-top)]">
+    <main class="flex-1 flex flex-col items-center px-4 max-w-lg mx-auto w-full min-h-0 overflow-hidden pb-2">
+      <section class="w-full pt-4 pb-2 shrink-0 text-center">
+        <p class="font-body text-[10px] tracking-[0.25em] uppercase text-slate-600 dark:text-[#6285b0] mb-1 font-medium">Current draw</p>
+        <div id="roll-container" class="slot-roll-viewport max-w-[12rem] mx-auto">
+          <div id="roll-strip" class="slot-roll-strip"></div>
+        </div>
+        <p id="roll-hint" class="text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-500 mt-1 hidden">Ascending order</p>
+      </section>
+
+      <div class="w-full flex flex-col flex-1 min-h-0 gap-1.5 mb-2">
+        <div class="flex justify-between items-end px-1 shrink-0">
+          <span id="game-timer" class="font-body text-[8px] tracking-widest text-slate-600 dark:text-slate-500 font-semibold tabular-nums" aria-label="Elapsed time">0:00</span>
+          <span class="font-body text-[8px] uppercase tracking-widest text-slate-600 dark:text-slate-500 font-semibold">Slots <span id="progress-label">0</span>/10</span>
+        </div>
+        <div id="slots-container" class="flex-1 grid gap-1.5 min-h-0 grid-rows-[repeat(10,minmax(0,1fr))]"></div>
+      </div>
+    </main>
+
+    <div id="post-gameover-bar" class="hidden shrink-0 w-full max-w-lg mx-auto flex flex-col gap-2 rounded-t-2xl border border-b-0 border-slate-200 dark:border-white/10 bg-white dark:bg-surface-low shadow-[0_-12px_40px_rgba(15,23,42,0.1)] dark:shadow-[0_-12px_40px_rgba(0,0,0,0.35)] px-4 pt-3 pb-2 [padding-left:max(1rem,env(safe-area-inset-left,0px))] [padding-right:max(1rem,env(safe-area-inset-right,0px))]" role="status" aria-live="polite">
+      <h3 class="font-headline text-center text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-on-surface leading-tight tracking-tight">Game over</h3>
+      <p id="go-message" class="text-center text-xs text-slate-600 dark:text-on-surface-muted leading-snug px-0.5 max-h-[4.25rem] overflow-y-auto hidden" aria-hidden="true"></p>
+      <p class="text-center text-[10px] uppercase tracking-widest text-slate-400 dark:text-on-surface/50">Score this run: <span id="go-score" class="text-primary font-bold">0</span>/10</p>
+      <div class="flex gap-2 pt-0.5">
+        <button type="button" id="btn-post-go-home" class="flex-1 py-4 sm:py-2.5 min-h-[3rem] sm:min-h-0 rounded-xl text-slate-600 dark:text-on-surface-muted text-xs font-semibold border border-slate-300 dark:border-white/15 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:scale-[0.99]">Back to start</button>
+        <button type="button" id="btn-post-go-retry" class="flex-1 py-4 sm:py-2.5 min-h-[3rem] sm:min-h-0 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-[10px] font-bold uppercase tracking-wider active:scale-[0.98] transition-transform">Play again</button>
+      </div>
+    </div>
+
+    <footer class="safe-pb-bottom shrink-0 w-full flex justify-around items-center px-2 sm:px-6 py-2 bg-white dark:bg-surface-low/85 backdrop-blur-xl border-t border-slate-300 shadow-[0_-4px_24px_rgba(15,23,42,0.06)] dark:border-white/5 dark:shadow-none max-w-lg mx-auto w-full [padding-left:max(0.5rem,env(safe-area-inset-left,0px))] [padding-right:max(0.5rem,env(safe-area-inset-right,0px))]">
+      <button type="button" id="btn-game-restart" class="p-2 rounded-lg text-slate-700 dark:text-[#6285b0] hover:text-primary transition-colors active:scale-95" aria-label="Restart game">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+      </button>
+      <button type="button" id="btn-game-theme" class="p-2 rounded-lg text-slate-700 dark:text-[#6285b0] hover:text-primary transition-colors active:scale-95" aria-label="Toggle theme">
+        <span class="hidden dark:inline"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg></span>
+        <span class="inline dark:hidden"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg></span>
+      </button>
+      <button type="button" id="btn-game-help" class="p-2 rounded-lg text-slate-700 dark:text-[#6285b0] hover:text-primary transition-colors active:scale-95" aria-label="How to play">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+      </button>
+      <button type="button" id="btn-game-settings" class="p-2 rounded-lg text-slate-700 dark:text-[#6285b0] hover:text-primary transition-colors active:scale-95" aria-label="Settings">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Win -->
+  <div id="overlay-win" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:px-6 bg-slate-900/70 dark:bg-black/75 backdrop-blur-md opacity-0 transition-opacity duration-300" aria-hidden="true">
+    <div class="w-full max-w-md rounded-2xl overflow-hidden bg-white dark:bg-surface-highest shadow-2xl border border-slate-200 dark:border-white/10 transform scale-95 transition-transform duration-300" id="overlay-win-panel" role="dialog" aria-modal="true" aria-labelledby="win-title">
+      <div class="relative px-6 pt-7 pb-6 text-center bg-gradient-to-b from-sky-100 via-white to-slate-50 dark:from-primary/25 dark:via-surface-highest dark:to-surface-highest border-b border-slate-200/80 dark:border-white/10">
+        <div class="absolute top-3 right-3 opacity-25 dark:opacity-20 pointer-events-none" aria-hidden="true">
+          <svg class="w-16 h-16 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7-6.3-4.6-6.3 4.6 2.3-7-6-4.6h7.6L12 2z"/></svg>
+        </div>
+        <div class="flex justify-center mb-4">
+          <span class="relative flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-2xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed shadow-lg shadow-sky-400/30 dark:shadow-black/40 ring-4 ring-white/80 dark:ring-white/10">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </span>
+        </div>
+        <p class="font-headline text-[0.65rem] tracking-[0.35em] uppercase text-sky-700 dark:text-primary/80 mb-2">Victory</p>
+        <h3 id="win-title" class="font-headline text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950 dark:text-on-surface">You won</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-on-surface-muted leading-relaxed max-w-xs mx-auto">All ten numbers locked in perfect ascending order. Challenge complete.</p>
+      </div>
+      <div class="px-5 sm:px-6 py-5 space-y-3 bg-slate-50 dark:bg-surface-low/50">
+        <div class="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-surface-low px-3.5 py-3 shadow-sm">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-100 dark:bg-primary/15 text-sky-700 dark:text-primary" aria-hidden="true">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </span>
+          <div class="min-w-0 flex-1 text-left">
+            <p class="text-[10px] font-headline font-bold uppercase tracking-widest text-slate-500 dark:text-on-surface/50">This run</p>
+            <p id="win-time-elapsed" class="font-headline text-lg font-bold tabular-nums text-slate-900 dark:text-on-surface">0:00</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-surface-low px-3.5 py-3 shadow-sm">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" aria-hidden="true">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+          </span>
+          <div class="min-w-0 flex-1 text-left">
+            <p class="text-[10px] font-headline font-bold uppercase tracking-widest text-slate-500 dark:text-on-surface/50">Depth</p>
+            <p class="font-headline text-lg font-bold text-slate-900 dark:text-on-surface"><span class="text-primary">10</span><span class="text-slate-400 dark:text-on-surface-muted font-semibold"> / 10</span> slots</p>
+          </div>
+        </div>
+        <button type="button" id="btn-win-continue" class="w-full mt-1 py-3.5 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-xs font-bold uppercase tracking-wider shadow-md shadow-sky-400/20 dark:shadow-black/30 active:scale-[0.98] transition-transform">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New game confirmation (replaces browser confirm) -->
+  <div id="overlay-restart-confirm" class="fixed inset-0 z-[52] hidden flex items-end sm:items-center justify-center p-4 bg-slate-900/70 dark:bg-black/75 backdrop-blur-md opacity-0 transition-opacity duration-300" aria-hidden="true">
+    <div class="w-full max-w-md rounded-2xl bg-white dark:bg-surface-highest p-6 shadow-2xl border border-slate-300 dark:border-white/10 transform scale-95 transition-transform duration-300" id="overlay-restart-panel" role="dialog" aria-modal="true" aria-labelledby="restart-confirm-title">
+      <div class="flex justify-center mb-4" aria-hidden="true">
+        <span class="flex h-12 w-12 items-center justify-center rounded-full bg-sky-100 dark:bg-primary/15 text-sky-600 dark:text-primary">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+        </span>
+      </div>
+      <h3 id="restart-confirm-title" class="font-headline text-lg font-bold text-slate-900 dark:text-on-surface text-center mb-2">Start a new run?</h3>
+      <p class="text-sm text-slate-600 dark:text-on-surface-muted text-center mb-6">Your current progress will be lost.</p>
+      <div class="flex flex-col gap-2">
+        <button type="button" id="btn-restart-confirm-yes" class="w-full py-3.5 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-xs font-bold uppercase tracking-wider active:scale-[0.98] transition-transform">New game</button>
+        <button type="button" id="btn-restart-confirm-cancel" class="w-full py-3 rounded-xl border-2 border-slate-200 dark:border-white/15 text-slate-700 dark:text-on-surface font-headline text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-transform">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help modal: mobile uses ~taller panel + larger type; scroll if needed -->
+  <div id="modal-help" class="modal-backdrop fixed inset-0 z-[55] flex items-end sm:items-center justify-center p-1.5 sm:p-4 bg-slate-900/50 dark:bg-black/60 backdrop-blur-md" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="help-title">
+    <div class="modal-panel w-full max-w-md rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-slate-300 sm:border-2 dark:border-white/10 ring-0 dark:ring-0 max-sm:max-h-[min(96dvh,96svh)] max-sm:min-h-[78dvh] sm:max-h-[88vh] flex flex-col bg-white dark:bg-surface-low">
+      <div class="relative px-4 pt-4 pb-3 sm:px-6 sm:pt-6 sm:pb-5 shrink-0 border-b border-slate-200 sm:border-b-2 dark:border-white/10 bg-gradient-to-b from-sky-100 to-white dark:from-surface-low dark:to-surface-low">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-sky-200/40 dark:bg-primary/5 rounded-full blur-3xl pointer-events-none hidden sm:block"></div>
+        <div class="flex justify-between items-start gap-3 sm:gap-4 relative">
+          <div class="min-w-0 pr-1 sm:pr-2">
+            <h3 id="help-title" class="font-headline text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950 dark:text-on-surface leading-tight">How to play</h3>
+            <p class="mt-2 sm:mt-3 text-xs sm:text-sm text-slate-800 dark:text-on-surface-muted leading-relaxed font-medium">
+              Ten draws. Ten slots. <span class="whitespace-nowrap sm:whitespace-normal">Strict order. No second chances.</span>
+            </p>
+          </div>
+          <button type="button" class="modal-close p-2 sm:p-2.5 rounded-lg sm:rounded-xl text-slate-700 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-white/10 shrink-0 transition-colors" data-close="modal-help" aria-label="Close">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="px-3 sm:px-6 pb-4 pt-3 sm:pb-6 sm:pt-4 overflow-y-auto overscroll-y-contain flex-1 min-h-0 space-y-2.5 sm:space-y-3 bg-slate-50 dark:bg-surface-low [scrollbar-gutter:stable]">
+        <article class="rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white dark:bg-surface-low border border-slate-200 dark:border-white/10 border-l-[3px] sm:border-l-4 border-l-sky-600 dark:border-l-primary/70 shadow-sm">
+          <div class="flex gap-2.5 sm:gap-3 items-start">
+            <span class="font-headline text-2xl font-extrabold text-sky-700 dark:text-primary/90 tabular-nums shrink-0 leading-none w-9 sm:w-auto text-center sm:text-left">01</span>
+            <div class="min-w-0 flex-1">
+              <h4 class="font-headline text-sm sm:text-xs font-bold uppercase tracking-[0.12em] sm:tracking-[0.2em] text-slate-950 dark:text-on-surface leading-tight mb-1 sm:mb-1.5">The draw</h4>
+              <p class="text-xs sm:text-sm text-slate-800 dark:text-on-surface-muted leading-relaxed">Each round reveals a random integer from 1–500 with a short slot-style roll animation.</p>
+            </div>
+          </div>
+        </article>
+        <article class="rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white dark:bg-surface-low border border-slate-200 dark:border-white/10 border-l-[3px] sm:border-l-4 border-l-sky-600 dark:border-l-primary/70 shadow-sm">
+          <div class="flex gap-2.5 sm:gap-3 items-start">
+            <span class="font-headline text-2xl font-extrabold text-sky-700 dark:text-primary/90 tabular-nums shrink-0 leading-none w-9 sm:w-auto text-center sm:text-left">02</span>
+            <div class="min-w-0 flex-1">
+              <h4 class="font-headline text-sm sm:text-xs font-bold uppercase tracking-[0.12em] sm:tracking-[0.2em] text-slate-950 dark:text-on-surface leading-tight mb-1 sm:mb-1.5">Preview</h4>
+              <p class="text-xs sm:text-sm text-slate-800 dark:text-on-surface-muted leading-relaxed">Tap an empty slot to preview the current number there (shown muted). Tap a different empty slot to move the preview.</p>
+            </div>
+          </div>
+        </article>
+        <article class="rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white dark:bg-surface-low border border-slate-200 dark:border-white/10 border-l-[3px] sm:border-l-4 border-l-sky-600 dark:border-l-primary/70 shadow-sm">
+          <div class="flex gap-2.5 sm:gap-3 items-start">
+            <span class="font-headline text-2xl font-extrabold text-sky-700 dark:text-primary/90 tabular-nums shrink-0 leading-none w-9 sm:w-auto text-center sm:text-left">03</span>
+            <div class="min-w-0 flex-1">
+              <h4 class="font-headline text-sm sm:text-xs font-bold uppercase tracking-[0.12em] sm:tracking-[0.2em] text-slate-950 dark:text-on-surface leading-tight mb-1 sm:mb-1.5">Confirm</h4>
+              <p class="text-xs sm:text-sm text-slate-800 dark:text-on-surface-muted leading-relaxed">Use the <strong class="text-slate-950 dark:text-on-surface">Confirm</strong> chip on that row, or tap the same slot again to lock it in.</p>
+            </div>
+          </div>
+        </article>
+        <article class="rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white dark:bg-surface-low border border-slate-200 dark:border-white/10 border-l-[3px] sm:border-l-4 border-l-sky-600 dark:border-l-primary/70 shadow-sm">
+          <div class="flex gap-2.5 sm:gap-3 items-start">
+            <span class="font-headline text-2xl font-extrabold text-sky-700 dark:text-primary/90 tabular-nums shrink-0 leading-none w-9 sm:w-auto text-center sm:text-left">04</span>
+            <div class="min-w-0 flex-1">
+              <h4 class="font-headline text-sm sm:text-xs font-bold uppercase tracking-[0.12em] sm:tracking-[0.2em] text-slate-950 dark:text-on-surface leading-tight mb-1 sm:mb-1.5">Order</h4>
+              <p class="text-xs sm:text-sm text-slate-800 dark:text-on-surface-muted leading-relaxed">From top (slot 01) to bottom (10), every locked value must be <strong class="text-slate-950 dark:text-on-surface">strictly increasing</strong>. If a confirm would break that chain, the run ends.</p>
+            </div>
+          </div>
+        </article>
+        <article class="rounded-lg sm:rounded-xl p-3 sm:p-4 bg-white dark:bg-surface-low border border-slate-200 dark:border-white/10 border-l-[3px] sm:border-l-4 border-l-sky-600 dark:border-l-primary/70 shadow-sm">
+          <div class="flex gap-2.5 sm:gap-3 items-start">
+            <span class="font-headline text-2xl font-extrabold text-sky-700 dark:text-primary/90 tabular-nums shrink-0 leading-none w-9 sm:w-auto text-center sm:text-left">05</span>
+            <div class="min-w-0 flex-1">
+              <h4 class="font-headline text-sm sm:text-xs font-bold uppercase tracking-[0.12em] sm:tracking-[0.2em] text-slate-950 dark:text-on-surface leading-tight mb-1 sm:mb-1.5">Win</h4>
+              <p class="text-xs sm:text-sm text-slate-800 dark:text-on-surface-muted leading-relaxed">Lock all ten numbers in valid order to clear the board. Your best depth (0–10) is saved as the high score.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div id="modal-settings" class="modal-backdrop fixed inset-0 z-[55] flex items-end sm:items-center justify-center p-4 bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="settings-title">
+    <div class="modal-panel w-full max-w-md rounded-2xl bg-white dark:bg-surface-highest p-6 shadow-2xl border border-slate-300 dark:border-white/10">
+      <div class="flex justify-between items-start mb-6">
+        <h3 id="settings-title" class="font-headline text-lg font-bold text-slate-900 dark:text-on-surface">Settings</h3>
+        <button type="button" class="modal-close p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10" data-close="modal-settings" aria-label="Close">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="space-y-3">
+        <button type="button" id="btn-toggle-sound" class="w-full flex justify-between items-center py-3 px-4 rounded-xl bg-slate-200/90 dark:bg-surface-low text-left text-sm font-semibold text-slate-900 dark:text-on-surface hover:opacity-90 transition-opacity active:scale-[0.99]">
+          <span>Sound</span>
+          <span id="sound-state" class="text-xs uppercase tracking-wider text-primary">On</span>
+        </button>
+        <button type="button" id="btn-toggle-vibration" class="w-full flex justify-between items-center py-3 px-4 rounded-xl bg-slate-200/90 dark:bg-surface-low text-left text-sm font-semibold text-slate-900 dark:text-on-surface hover:opacity-90 transition-opacity active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none">
+          <span>Vibration</span>
+          <span id="vibration-state" class="text-xs uppercase tracking-wider text-primary">On</span>
+        </button>
+        <div class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-surface-low/80 p-4 space-y-3">
+          <p class="font-headline text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-on-surface">Statistics</p>
+          <p class="text-[11px] leading-snug text-slate-500 dark:text-on-surface-muted">Stored on this device (works offline in the installed app).</p>
+          <dl class="grid grid-cols-[1fr_auto] gap-x-3 gap-y-2 text-sm">
+            <dt class="text-slate-600 dark:text-on-surface-muted">Runs played</dt>
+            <dd id="stat-runs" class="text-right font-semibold tabular-nums text-slate-900 dark:text-on-surface">0</dd>
+            <dt class="text-slate-600 dark:text-on-surface-muted">Wins</dt>
+            <dd id="stat-wins" class="text-right font-semibold tabular-nums text-slate-900 dark:text-on-surface">0</dd>
+            <dt class="text-slate-600 dark:text-on-surface-muted">Losses</dt>
+            <dd id="stat-losses" class="text-right font-semibold tabular-nums text-slate-900 dark:text-on-surface">0</dd>
+            <dt class="text-slate-600 dark:text-on-surface-muted">Win rate</dt>
+            <dd id="stat-winrate" class="text-right font-semibold tabular-nums text-slate-900 dark:text-on-surface">—</dd>
+            <dt class="text-slate-600 dark:text-on-surface-muted">Numbers locked</dt>
+            <dd id="stat-slots" class="text-right font-semibold tabular-nums text-slate-900 dark:text-on-surface">0</dd>
+            <dt class="text-slate-600 dark:text-on-surface-muted">Total time in runs</dt>
+            <dd id="stat-playtime" class="text-right font-semibold tabular-nums text-slate-900 dark:text-on-surface">0:00</dd>
+          </dl>
+          <button type="button" id="btn-reset-stats" class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-on-surface-muted border border-slate-300 dark:border-white/15 hover:bg-slate-200/80 dark:hover:bg-white/5 transition-colors active:scale-[0.99]">
+            Reset statistics
+          </button>
+        </div>
+        <button type="button" id="btn-install" class="hidden w-full py-3 px-4 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed text-sm font-headline font-bold uppercase tracking-wider text-center active:scale-[0.99] transition-transform">
+          Install app
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>

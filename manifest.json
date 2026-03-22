@@ -1,0 +1,22 @@
+{
+  "name": "The 1 to 500 Game",
+  "short_name": "1–500",
+  "description": "Free puzzle: 10 random numbers from 1–500. Lock each in ascending order—one wrong confirm ends the run. Works offline.",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["games", "entertainment"],
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
