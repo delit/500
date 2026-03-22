@@ -7,6 +7,8 @@
   const ROLL_MS = 800;
   /** Stop roll ticks this many ms before the strip transition ends (easing makes the tail feel done sooner). */
   const ROLL_SOUND_TRIM_MS = 400;
+  /** Touch/coarse: start “Place number here” stagger this many ms before roll transform ends. */
+  const HINT_REVEAL_LEAD_MS = 200;
   const ITEM_H_REM = 5.25;
 
   const LS_HIGH = "1to500_highScore";
@@ -18,8 +20,25 @@
   const LS_SOUND = "1to500_sound";
   /** "off" disables haptics; default on when supported (PWA / mobile use same localStorage). */
   const LS_VIBRATION = "1to500_vibration";
-  /** { runs, wins, losses, slotsLocked, playTimeMs } — device-local, offline-safe. */
+  /** { runs, wins, losses, playTimeMs } — device-local, offline-safe. */
   const LS_STATS = "1to500_stats";
+
+  // #region agent log
+  function __agentDbg(loc, msg, data, hypothesisId) {
+    fetch("http://127.0.0.1:7806/ingest/4aa1dc08-b460-47ce-ab0e-0e12506a41ab", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "5bbcbd" },
+      body: JSON.stringify({
+        sessionId: "5bbcbd",
+        location: loc,
+        message: msg,
+        data: data || {},
+        hypothesisId: hypothesisId || "",
+        timestamp: Date.now(),
+      }),
+    }).catch(function () {});
+  }
+  // #endregion
 
   /** @type {number[]} */
   let locked = Array(SLOT_COUNT).fill(null);
@@ -28,17 +47,33 @@
   let isRolling = false;
   /** When true, locked rows use the same neutral styling as empty rows (loss state). */
   let isGameOverBoard = false;
+  /** One-shot: stagger “Place number here” on the render pass that mounts it. */
+  let pendingMobileHintReveal = false;
+  /** During roll on touch: show place hints (still disabled) before roll ends. */
+  let earlyHintRevealPhase = false;
+  /** Early hint stagger already ran; settle skips repeating hint animation. */
+  let hintRevealAlreadyPlayed = false;
+  /** Completed normal draws this run; intro stagger only while this is 0 (after startGame). */
+  let completedDrawCount = 0;
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let rollEarlyHintTimerId = null;
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let rollSettleTimerId = null;
   let deferredInstall = null;
   /** @type {ReturnType<typeof setInterval> | null} */
   let gameTimerId = null;
   let gameStartMs = 0;
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let rollLossPulseClearTimer = null;
 
   const $ = (sel, el = document) => el.querySelector(sel);
 
   const screenStart = $("#screen-start");
   const screenGame = $("#screen-game");
+  const gameLossFlash = $("#game-loss-flash");
   const slotsContainer = $("#slots-container");
   const rollStrip = $("#roll-strip");
+  const rollContainer = $("#roll-container");
   const progressLabel = $("#progress-label");
   const startHighScore = $("#start-high-score");
   const startBestTime = $("#start-best-time");
@@ -52,7 +87,12 @@
   const modalSettings = $("#modal-settings");
   const btnInstall = $("#btn-install");
   const soundState = $("#sound-state");
+  const soundSwitchTrack = $("#sound-switch-track");
+  const soundSwitchKnob = $("#sound-switch-knob");
+  const btnToggleSound = $("#btn-toggle-sound");
   const vibrationState = $("#vibration-state");
+  const vibrationSwitchTrack = $("#vibration-switch-track");
+  const vibrationSwitchKnob = $("#vibration-switch-knob");
   const btnToggleVibration = $("#btn-toggle-vibration");
   const gameTimerEl = $("#game-timer");
   const postGameoverBar = $("#post-gameover-bar");
@@ -179,7 +219,28 @@
   }
 
   function setSoundLabel() {
-    if (soundState) soundState.textContent = isSoundOn() ? "On" : "Off";
+    const on = isSoundOn();
+    if (soundState) soundState.textContent = on ? "On" : "Off";
+    if (btnToggleSound) btnToggleSound.setAttribute("aria-checked", on ? "true" : "false");
+    if (soundSwitchTrack && soundSwitchKnob) {
+      const st = soundSwitchTrack;
+      st.classList.remove(
+        "bg-slate-400",
+        "dark:bg-white/25",
+        "bg-gradient-to-r",
+        "from-[#a6c9f8]",
+        "to-[#6285b0]",
+        "shadow-inner",
+        "shadow-md",
+        "shadow-sky-400/20"
+      );
+      if (on) {
+        st.classList.add("bg-gradient-to-r", "from-[#a6c9f8]", "to-[#6285b0]", "shadow-md", "shadow-sky-400/20");
+      } else {
+        st.classList.add("bg-slate-400", "dark:bg-white/25", "shadow-inner");
+      }
+      soundSwitchKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
+    }
   }
 
   function canVibrate() {
@@ -198,13 +259,50 @@
       vibrationState.classList.add("text-slate-400", "dark:text-on-surface/45");
       btnToggleVibration.disabled = true;
       btnToggleVibration.setAttribute("aria-disabled", "true");
+      btnToggleVibration.setAttribute("aria-checked", "false");
+      if (vibrationSwitchTrack && vibrationSwitchKnob) {
+        const vt = vibrationSwitchTrack;
+        vt.classList.remove(
+          "bg-gradient-to-r",
+          "from-[#a6c9f8]",
+          "to-[#6285b0]",
+          "shadow-md",
+          "shadow-sky-400/20",
+          "bg-slate-400",
+          "dark:bg-white/25",
+          "shadow-inner"
+        );
+        vt.classList.add("bg-slate-300", "dark:bg-white/10", "opacity-60", "shadow-inner");
+        vibrationSwitchKnob.style.transform = "translateX(0)";
+      }
       return;
     }
     btnToggleVibration.disabled = false;
     btnToggleVibration.removeAttribute("aria-disabled");
-    vibrationState.classList.add("text-primary");
     vibrationState.classList.remove("text-slate-400", "dark:text-on-surface/45");
-    vibrationState.textContent = isVibrationSettingOn() ? "On" : "Off";
+    const on = isVibrationSettingOn();
+    vibrationState.textContent = on ? "On" : "Off";
+    btnToggleVibration.setAttribute("aria-checked", on ? "true" : "false");
+    if (vibrationSwitchTrack && vibrationSwitchKnob) {
+      const vt = vibrationSwitchTrack;
+      vt.classList.remove("bg-slate-300", "dark:bg-white/10", "opacity-60");
+      vt.classList.remove(
+        "bg-slate-400",
+        "dark:bg-white/25",
+        "bg-gradient-to-r",
+        "from-[#a6c9f8]",
+        "to-[#6285b0]",
+        "shadow-inner",
+        "shadow-md",
+        "shadow-sky-400/20"
+      );
+      if (on) {
+        vt.classList.add("bg-gradient-to-r", "from-[#a6c9f8]", "to-[#6285b0]", "shadow-md", "shadow-sky-400/20");
+      } else {
+        vt.classList.add("bg-slate-400", "dark:bg-white/25", "shadow-inner");
+      }
+      vibrationSwitchKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
+    }
   }
 
   /** @param {number | number[]} pattern */
@@ -236,7 +334,7 @@
   }
 
   function defaultStats() {
-    return { runs: 0, wins: 0, losses: 0, slotsLocked: 0, playTimeMs: 0 };
+    return { runs: 0, wins: 0, losses: 0, playTimeMs: 0 };
   }
 
   function loadStats() {
@@ -271,12 +369,6 @@
     saveStats(s);
   }
 
-  function incrementStatsSlotsLocked() {
-    const s = loadStats();
-    s.slotsLocked = (s.slotsLocked || 0) + 1;
-    saveStats(s);
-  }
-
   function refreshStatsDisplay() {
     const s = loadStats();
     const runs = s.runs || 0;
@@ -286,13 +378,11 @@
     const elWins = $("#stat-wins");
     const elLosses = $("#stat-losses");
     const elWr = $("#stat-winrate");
-    const elSlots = $("#stat-slots");
     const elPt = $("#stat-playtime");
     if (elRuns) elRuns.textContent = String(runs);
     if (elWins) elWins.textContent = String(wins);
     if (elLosses) elLosses.textContent = String(losses);
     if (elWr) elWr.textContent = runs > 0 ? `${Math.round((wins / runs) * 100)}%` : "—";
-    if (elSlots) elSlots.textContent = String(s.slotsLocked || 0);
     if (elPt) elPt.textContent = formatGameElapsed(s.playTimeMs || 0);
   }
 
@@ -313,6 +403,7 @@
     if (!isSoundOn()) return;
     try {
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      void audioCtx.resume();
       const o = audioCtx.createOscillator();
       const g = audioCtx.createGain();
       o.connect(g);
@@ -379,6 +470,60 @@
     } catch (_) {}
   }
 
+  /** Descending “lose” sting; respects Sound. */
+  function playGameOverSound() {
+    if (!isSoundOn()) return;
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      void audioCtx.resume();
+      const t = audioCtx.currentTime + 0.02;
+      const notes = [
+        { f0: 245, f1: 180, d: 0.16 },
+        { f0: 175, f1: 120, d: 0.18 },
+        { f0: 110, f1: 70, d: 0.28 },
+      ];
+      let at = 0;
+      for (const { f0, f1, d } of notes) {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.type = "triangle";
+        const s = t + at;
+        o.frequency.setValueAtTime(f0, s);
+        o.frequency.exponentialRampToValueAtTime(Math.max(45, f1), s + d);
+        g.gain.setValueAtTime(0.0001, s);
+        g.gain.exponentialRampToValueAtTime(0.078, s + 0.035);
+        g.gain.exponentialRampToValueAtTime(0.0001, s + d);
+        o.start(s);
+        o.stop(s + d + 0.03);
+        at += d * 0.58;
+      }
+    } catch (_) {}
+  }
+
+  /**
+   * Chrome Android often leaves AudioContext “suspended” until resume() resolves.
+   * Roll ticks are scheduled ahead in time; awaiting resume before scheduling fixes missing roll SFX on GitHub Pages / mobile.
+   */
+  function prepareRollAudioThen(cb) {
+    if (!isSoundOn()) {
+      cb();
+      return;
+    }
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const p = audioCtx.resume();
+      if (p && typeof p.then === "function") {
+        p.then(() => cb()).catch(() => cb());
+      } else {
+        cb();
+      }
+    } catch (_) {
+      cb();
+    }
+  }
+
   function stopRollSound() {
     if (rollSoundCleanupTimerId != null) {
       window.clearTimeout(rollSoundCleanupTimerId);
@@ -430,12 +575,13 @@
     try {
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
       void audioCtx.resume();
-      const t0 = audioCtx.currentTime + 0.02;
+      const t0 = audioCtx.currentTime + 0.08;
       const n = Math.max(10, Math.floor((tickCount || 8) * 0.45));
       const tickMs = Math.max(52, Math.floor(durationMs / n));
       const tickSec = tickMs / 1000;
       const numTicks = Math.min(120, Math.ceil(durationMs / tickMs) + 1);
-      const dur = 0.01;
+      const dur = 0.012;
+      const tickGain = 0.034;
 
       for (let k = 0; k < numTicks; k++) {
         const t = t0 + k * tickSec;
@@ -445,7 +591,7 @@
         g.connect(audioCtx.destination);
         o.type = "sine";
         o.frequency.setValueAtTime(360 + Math.random() * 100, t);
-        g.gain.setValueAtTime(0.022, t);
+        g.gain.setValueAtTime(tickGain, t);
         g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
         o.start(t);
         o.stop(t + dur + 0.006);
@@ -537,6 +683,8 @@
 
   function renderSlots() {
     slotsContainer.innerHTML = "";
+    const coarsePointer = isCoarsePointer();
+    let emptyHintStagger = 0;
     for (let i = 0; i < SLOT_COUNT; i++) {
       const row = document.createElement("div");
       row.className = `min-h-0 flex items-stretch${isGameOverBoard ? " slot-row-go-pulse" : ""}`;
@@ -574,8 +722,10 @@
         const btn = document.createElement("button");
         btn.type = "button";
         btn.dataset.slotIndex = String(i);
+        btn.disabled = isRolling;
         btn.className =
-          "flex w-full items-center justify-between px-3 py-1 rounded-lg border text-left transition-all bg-sky-100 border-sky-400/50 ring-2 ring-sky-400/35 shadow-md dark:bg-slate-950/95 dark:border-primary/35 dark:ring-primary/40";
+          "flex w-full items-center justify-between px-3 py-1 rounded-lg border text-left transition-all bg-sky-100 border-sky-400/50 ring-2 ring-sky-400/35 shadow-md dark:bg-slate-950/95 dark:border-primary/35 dark:ring-primary/40 " +
+          "disabled:pointer-events-none disabled:opacity-90";
         btn.innerHTML = `
           <div class="flex items-center gap-3 sm:gap-4 min-w-0">
             <span class="font-headline font-bold text-sm text-sky-800/40 dark:text-white/35 shrink-0 tabular-nums">${String(i + 1).padStart(2, "0")}</span>
@@ -592,9 +742,12 @@
         btn.type = "button";
         btn.dataset.slotIndex = String(i);
         const canInteract = !isRolling && currentNumber != null;
+        const showPlaceHint =
+          !isGameOverBoard && (canInteract || isRolling);
         btn.disabled = !canInteract;
         btn.className =
           "group flex w-full items-center px-3 py-0.5 rounded-lg text-left transition-colors border bg-white border-slate-300 shadow-sm dark:bg-surface-lowest/40 dark:border-white/10 dark:shadow-none " +
+          (isRolling && !canInteract ? "slot-row-rolling-wait " : "") +
           (canInteract
             ? "hover:bg-slate-50 dark:hover:bg-surface-low/60 active:scale-[0.995] "
             : "") +
@@ -602,9 +755,43 @@
         if (canInteract) {
           btn.title = "Place your number here";
         }
-        const hintHtml = canInteract
-          ? `<span class="slot-empty-hint flex-1 min-w-0 min-h-[1.75rem] flex items-center justify-end sm:justify-start pl-1 text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-600 dark:text-on-surface/55 pointer-events-none text-right sm:text-left leading-tight">Place number here</span>`
-          : `<span class="flex-1 min-w-0 min-h-[1.75rem]" aria-hidden="true"></span>`;
+        /** Touch: first draw — hide hint until early stagger runs (avoids 0.4 opacity before animation). */
+        const introHintHidden =
+          coarsePointer &&
+          completedDrawCount === 0 &&
+          !hintRevealAlreadyPlayed &&
+          !earlyHintRevealPhase &&
+          showPlaceHint;
+        const useHintRevealAnim =
+          showPlaceHint &&
+          coarsePointer &&
+          pendingMobileHintReveal &&
+          completedDrawCount === 0;
+        if (useHintRevealAnim) {
+          // #region agent log
+          __agentDbg(
+            "app.js:renderSlots",
+            "hint_reveal_anim_row",
+            {
+              row: i,
+              pendingMobileHintReveal: pendingMobileHintReveal,
+              completedDrawCount: completedDrawCount,
+              showPlaceHint: showPlaceHint,
+              coarsePointer: coarsePointer,
+              isRolling: isRolling,
+              earlyHintRevealPhase: earlyHintRevealPhase,
+            },
+            "H3-H5"
+          );
+          // #endregion
+        }
+        const hintStagger = useHintRevealAnim ? emptyHintStagger++ : 0;
+        const hintRevealClass = useHintRevealAnim ? " slot-hint-reveal-anim" : "";
+        const hintRevealStyle = useHintRevealAnim ? ` style="--hint-stagger:${hintStagger}"` : "";
+        const hintHtml =
+          showPlaceHint && !introHintHidden
+            ? `<span class="slot-empty-hint${hintRevealClass} flex-1 min-w-0 min-h-[1.75rem] flex items-center justify-end sm:justify-start pl-1 text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-600 dark:text-on-surface/55 pointer-events-none text-right sm:text-left leading-tight"${hintRevealStyle}>Place number here</span>`
+            : `<span class="flex-1 min-w-0 min-h-[1.75rem]" aria-hidden="true"></span>`;
         btn.innerHTML = `
           <div class="flex items-center gap-3 sm:gap-4 w-full min-w-0 ${canInteract ? "opacity-70" : "opacity-[0.68]"}">
             <span class="font-headline font-bold text-sm text-slate-400 dark:text-on-surface/28 tabular-nums shrink-0">${String(i + 1).padStart(2, "0")}</span>
@@ -643,6 +830,7 @@
   }
 
   function tryConfirm() {
+    if (isRolling) return;
     if (previewIndex == null || currentNumber == null) return;
     const i = previewIndex;
     const v = currentNumber;
@@ -654,7 +842,6 @@
 
     locked[i] = v;
     previewIndex = null;
-    incrementStatsSlotsLocked();
     hapticConfirm();
 
     const done = filledCount();
@@ -679,7 +866,38 @@
       "The open slots no longer have enough room in 1–500 to stay strictly ascending.",
   };
 
+  function triggerRollLossPulse() {
+    if (!rollContainer) return;
+    if (rollLossPulseClearTimer != null) {
+      clearTimeout(rollLossPulseClearTimer);
+      rollLossPulseClearTimer = null;
+    }
+    rollContainer.classList.remove("roll-loss-pulse");
+    void rollContainer.offsetWidth;
+    rollContainer.classList.add("roll-loss-pulse");
+    rollLossPulseClearTimer = window.setTimeout(() => {
+      rollContainer.classList.remove("roll-loss-pulse");
+      rollLossPulseClearTimer = null;
+    }, 1550);
+  }
+
+  function triggerGameLossBackgroundPulse() {
+    if (!gameLossFlash) return;
+    gameLossFlash.classList.remove("is-playing");
+    void gameLossFlash.offsetWidth;
+    gameLossFlash.classList.add("is-playing");
+    gameLossFlash.addEventListener(
+      "animationend",
+      (e) => {
+        if (e.target !== gameLossFlash) return;
+        gameLossFlash.classList.remove("is-playing");
+      },
+      { once: true }
+    );
+  }
+
   function gameOver(reason = "invalid") {
+    clearRollSettleTimer();
     hidePostGameoverBar();
     const elapsedMs = gameStartMs ? Date.now() - gameStartMs : 0;
     freezeGameTimer();
@@ -703,8 +921,9 @@
     }
     showPostGameoverBar();
     hapticGameOver();
-    beep(180, 0.15);
+    playGameOverSound();
     renderSlots();
+    triggerRollLossPulse();
   }
 
   function win() {
@@ -790,7 +1009,37 @@
     return a + Math.floor(Math.random() * (b - a + 1));
   }
 
+  function isCoarsePointer() {
+    try {
+      return window.matchMedia("(hover: none), (pointer: coarse)").matches;
+    } catch (_) {
+      return false;
+    }
+  }
+
   function scheduleRoll() {
+    if (rollSettleTimerId != null) {
+      clearTimeout(rollSettleTimerId);
+      rollSettleTimerId = null;
+    }
+    if (rollEarlyHintTimerId != null) {
+      clearTimeout(rollEarlyHintTimerId);
+      rollEarlyHintTimerId = null;
+    }
+    earlyHintRevealPhase = false;
+    hintRevealAlreadyPlayed = false;
+    // #region agent log
+    __agentDbg(
+      "app.js:scheduleRoll",
+      "scheduleRoll_after_reset",
+      {
+        completedDrawCount: completedDrawCount,
+        hintRevealAlreadyPlayed: hintRevealAlreadyPlayed,
+        coarse: isCoarsePointer(),
+      },
+      "H1-H2"
+    );
+    // #endregion
     unlockAudioForRoll();
     isRolling = true;
     const finalNum = randomInt(MIN_N, MAX_N);
@@ -821,13 +1070,70 @@
     strip.style.transition = `transform ${ROLL_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`;
     strip.style.transform = `translateY(${endY}px)`;
 
-    startRollSound(Math.max(240, ROLL_MS - ROLL_SOUND_TRIM_MS), total);
+    prepareRollAudioThen(() => {
+      startRollSound(Math.max(240, ROLL_MS - ROLL_SOUND_TRIM_MS), total);
+    });
 
     let rollSettled = false;
+
+    rollEarlyHintTimerId = window.setTimeout(() => {
+      rollEarlyHintTimerId = null;
+      // #region agent log
+      __agentDbg(
+        "app.js:earlyTimer",
+        "earlyTimer_entry",
+        {
+          rollSettled: rollSettled,
+          coarse: isCoarsePointer(),
+          completedDrawCount: completedDrawCount,
+          hintPlayed: hintRevealAlreadyPlayed,
+        },
+        "H1-H2-H4"
+      );
+      // #endregion
+      if (rollSettled) {
+        // #region agent log
+        __agentDbg("app.js:earlyTimer", "earlyTimer_skip", { reason: "rollSettled" }, "H2");
+        // #endregion
+        return;
+      }
+      if (!isCoarsePointer()) {
+        // #region agent log
+        __agentDbg("app.js:earlyTimer", "earlyTimer_skip", { reason: "not_coarse" }, "H4");
+        // #endregion
+        return;
+      }
+      if (completedDrawCount > 0) {
+        // #region agent log
+        __agentDbg("app.js:earlyTimer", "earlyTimer_skip", { reason: "draw_count_gt_0" }, "H1-H2");
+        // #endregion
+        return;
+      }
+      if (!screenGame || screenGame.classList.contains("hidden")) {
+        // #region agent log
+        __agentDbg("app.js:earlyTimer", "earlyTimer_skip", { reason: "screen_hidden" }, "H2");
+        // #endregion
+        return;
+      }
+      hintRevealAlreadyPlayed = true;
+      earlyHintRevealPhase = true;
+      pendingMobileHintReveal = true;
+      renderSlots();
+      pendingMobileHintReveal = false;
+      // #region agent log
+      __agentDbg("app.js:earlyTimer", "earlyTimer_applied_stagger", { completedDrawCount: completedDrawCount }, "H2");
+      // #endregion
+    }, Math.max(0, ROLL_MS - HINT_REVEAL_LEAD_MS));
+
     const settleRoll = () => {
       if (rollSettled) return;
       rollSettled = true;
-      strip.removeEventListener("transitionend", onEnd);
+      rollSettleTimerId = null;
+      if (rollEarlyHintTimerId != null) {
+        clearTimeout(rollEarlyHintTimerId);
+        rollEarlyHintTimerId = null;
+      }
+      earlyHintRevealPhase = false;
       stopRollSound();
       isRolling = false;
       if (!canPlaceCurrentSomewhere(locked, finalNum)) {
@@ -838,37 +1144,93 @@
         return;
       }
       currentNumber = finalNum;
+      const _dbgCoarse = isCoarsePointer();
+      const isFirstDrawOfRun = completedDrawCount === 0;
+      const doPlaceHintRevealAnim =
+        _dbgCoarse && !hintRevealAlreadyPlayed && isFirstDrawOfRun;
+      // #region agent log
+      __agentDbg(
+        "app.js:settleRoll",
+        "settle_success",
+        {
+          coarse: _dbgCoarse,
+          hintRevealAlreadyPlayed: hintRevealAlreadyPlayed,
+          completedDrawCount: completedDrawCount,
+          doPlaceHintRevealAnim: doPlaceHintRevealAnim,
+        },
+        "H1-H3-H4"
+      );
+      // #endregion
+      pendingMobileHintReveal = doPlaceHintRevealAnim;
       renderSlots();
+      pendingMobileHintReveal = false;
+      completedDrawCount += 1;
+      // #region agent log
+      __agentDbg(
+        "app.js:settleRoll",
+        "settle_after_render",
+        { completedDrawCount: completedDrawCount, didAnim: doPlaceHintRevealAnim },
+        "H1-H3"
+      );
+      // #endregion
       hapticRollLand();
       beep(380, 0.04);
     };
-    const onEnd = (e) => {
-      if (e && e.propertyName && e.propertyName !== "transform") return;
-      settleRoll();
-    };
-    strip.addEventListener("transitionend", onEnd);
-    window.setTimeout(settleRoll, ROLL_MS + 100);
+    /* Use a fixed delay for game logic — some browsers fire transitionend early or twice,
+       which unlocked the board before the roll animation finished and felt like instant Game Over. */
+    rollSettleTimerId = window.setTimeout(settleRoll, ROLL_MS);
+  }
+
+  function clearRollSettleTimer() {
+    if (rollSettleTimerId != null) {
+      clearTimeout(rollSettleTimerId);
+      rollSettleTimerId = null;
+    }
   }
 
   function startGame() {
     bumpStatsRunStarted();
+    completedDrawCount = 0;
+    // #region agent log
+    __agentDbg("app.js:startGame", "startGame_reset_draw_count", { completedDrawCount: 0 }, "H1");
+    // #endregion
     isGameOverBoard = false;
     locked = Array(SLOT_COUNT).fill(null);
     currentNumber = null;
     previewIndex = null;
     isRolling = false;
+    if (gameLossFlash) gameLossFlash.classList.remove("is-playing");
     screenStart.classList.add("hidden");
     screenGame.classList.remove("hidden");
     rollStrip.innerHTML = "";
+    if (rollContainer) {
+      rollContainer.classList.remove("roll-loss-pulse");
+    }
+    if (rollLossPulseClearTimer != null) {
+      clearTimeout(rollLossPulseClearTimer);
+      rollLossPulseClearTimer = null;
+    }
     hidePostGameoverBar();
     startGameTimer();
     scheduleRoll();
   }
 
   function goHome() {
+    clearRollSettleTimer();
+    if (rollEarlyHintTimerId != null) {
+      clearTimeout(rollEarlyHintTimerId);
+      rollEarlyHintTimerId = null;
+    }
+    if (rollLossPulseClearTimer != null) {
+      clearTimeout(rollLossPulseClearTimer);
+      rollLossPulseClearTimer = null;
+    }
+    if (rollContainer) rollContainer.classList.remove("roll-loss-pulse");
+    earlyHintRevealPhase = false;
     isGameOverBoard = false;
     hidePostGameoverBar();
     hideOverlay(overlayWin, $("#overlay-win-panel"));
+    if (gameLossFlash) gameLossFlash.classList.remove("is-playing");
     screenGame.classList.add("hidden");
     screenStart.classList.remove("hidden");
     isRolling = false;
@@ -994,6 +1356,13 @@
       e.preventDefault();
       deferredInstall = e;
       btnInstall.classList.remove("hidden");
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden || !audioCtx) return;
+      try {
+        void audioCtx.resume();
+      } catch (_) {}
     });
   }
 
