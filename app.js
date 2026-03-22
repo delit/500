@@ -30,8 +30,10 @@
   const LS_BEST_TIME_BY_SCORE = "1to500_bestTimeMsByScore";
   const LS_THEME = "1to500_theme";
   const LS_SOUND = "1to500_sound";
-  /** "off" disables haptics; default on when supported (PWA / mobile use same localStorage). */
-  const LS_VIBRATION = "1to500_vibration";
+  /** When `"on"`, solo game over starts a new run automatically after a short delay. */
+  const LS_AUTO_PLAY_AGAIN = "1to500_autoPlayAgain";
+  /** When `"on"`, choosing a slot locks the draw immediately (no separate Confirm tap). */
+  const LS_IGNORE_CONFIRM = "1to500_ignoreConfirm";
   /** { runs, wins, losses, playTimeMs } — device-local, offline-safe. */
   const LS_STATS = "1to500_stats";
   /** Top runs in localStorage: JSON array { score, timeMs, at }[], max 10 (best score, then fastest time). */
@@ -64,10 +66,16 @@
   let gameStartMs = 0;
   /** @type {ReturnType<typeof setTimeout> | null} */
   let rollLossPulseClearTimer = null;
-  /** Coarse pointer: game-over haptic already fired on pointerdown (Android activation). */
-  let gameOverHapticPlayedThisTap = false;
-  /** Timer-based loss (unwinnable-draw): vibrate on first tap on post–game-over actions. */
-  let pendingGameOverVibration = false;
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let autoPlayAgainAfterLossTimerId = null;
+  const AUTO_PLAY_AGAIN_DELAY_MS = 600;
+  /** Full-screen / modal overlays over the game: pause the run timer while open (nested = depth). */
+  let gameTimerOverlayPauseDepth = 0;
+  let gameTimerElapsedMsWhenPaused = 0;
+  /** Next overlay open replaces the previous layer without increasing pause depth (two-player pre-results → results). */
+  let skipNextOverlayPauseDepthBump = false;
+  /** False after run ends (freezeGameTimer); blocks overlay-resume from restarting the interval. */
+  let gameTimerMayResume = true;
 
   const $ = (sel, el = document) => el.querySelector(sel);
 
@@ -93,12 +101,33 @@
   const soundSwitchTrack = $("#sound-switch-track");
   const soundSwitchKnob = $("#sound-switch-knob");
   const btnToggleSound = $("#btn-toggle-sound");
-  const vibrationState = $("#vibration-state");
-  const vibrationSwitchTrack = $("#vibration-switch-track");
-  const vibrationSwitchKnob = $("#vibration-switch-knob");
-  const btnToggleVibration = $("#btn-toggle-vibration");
-  const gameTimerEl = $("#game-timer");
+  const btnToggleAutoPlayAgain = $("#btn-toggle-auto-play-again");
+  const autoPlayAgainState = $("#auto-play-again-state");
+  const autoPlayAgainSwitchTrack = $("#auto-play-again-switch-track");
+  const autoPlayAgainSwitchKnob = $("#auto-play-again-switch-knob");
+  const btnToggleIgnoreConfirm = $("#btn-toggle-ignore-confirm");
+  const ignoreConfirmState = $("#ignore-confirm-state");
+  const ignoreConfirmSwitchTrack = $("#ignore-confirm-switch-track");
+  const ignoreConfirmSwitchKnob = $("#ignore-confirm-switch-knob");
   const postGameoverBar = $("#post-gameover-bar");
+
+  function gameTimerDom() {
+    return document.getElementById("game-timer");
+  }
+
+  /** True when a modal or full-screen layer that should freeze the run clock is visible (DOM source of truth). */
+  function isTimerBlockingUiOpen() {
+    if (document.querySelector(".modal-backdrop.is-open")) return true;
+    const ro = document.getElementById("overlay-restart-confirm");
+    if (ro && !ro.classList.contains("hidden")) return true;
+    const ow = document.getElementById("overlay-win");
+    if (ow && !ow.classList.contains("hidden")) return true;
+    const tpPass = document.getElementById("tp-pass-overlay");
+    if (tpPass && !tpPass.classList.contains("hidden")) return true;
+    const tpPre = document.getElementById("tp-pre-results-overlay");
+    if (tpPre && !tpPre.classList.contains("hidden")) return true;
+    return false;
+  }
 
   function hidePostGameoverBar() {
     if (postGameoverBar) postGameoverBar.classList.add("hidden");
@@ -116,15 +145,31 @@
   }
 
   function tickGameTimer() {
-    if (!gameTimerEl || !gameStartMs) return;
-    gameTimerEl.textContent = formatGameElapsed(Date.now() - gameStartMs);
+    const el = gameTimerDom();
+    if (!el || !gameStartMs) return;
+
+    if (isTimerBlockingUiOpen()) {
+      if (
+        gameTimerOverlayPauseDepth === 0 &&
+        gameTimerMayResume &&
+        !isGameOverBoard
+      ) {
+        pauseGameTimerForOverlay();
+      }
+      return;
+    }
+
+    if (gameTimerOverlayPauseDepth > 0) return;
+    el.textContent = formatGameElapsed(Date.now() - gameStartMs);
   }
 
   function startGameTimer() {
     stopGameTimer();
+    gameTimerMayResume = true;
     gameStartMs = Date.now();
-    if (gameTimerEl) {
-      gameTimerEl.textContent = "0:00";
+    const el = gameTimerDom();
+    if (el) {
+      el.textContent = "0:00";
       gameTimerId = window.setInterval(tickGameTimer, 1000);
       tickGameTimer();
     }
@@ -139,15 +184,77 @@
 
   function freezeGameTimer() {
     stopGameTimer();
-    if (gameStartMs && gameTimerEl) {
-      gameTimerEl.textContent = formatGameElapsed(Date.now() - gameStartMs);
+    gameTimerMayResume = false;
+    const el = gameTimerDom();
+    if (gameStartMs && el) {
+      el.textContent = formatGameElapsed(Date.now() - gameStartMs);
     }
   }
 
   function resetGameTimerDisplay() {
     stopGameTimer();
+    gameTimerMayResume = false;
     gameStartMs = 0;
-    if (gameTimerEl) gameTimerEl.textContent = "0:00";
+    const el = gameTimerDom();
+    if (el) el.textContent = "0:00";
+  }
+
+  function isOnGameScreen() {
+    const g = screenGame || document.getElementById("screen-game");
+    return Boolean(g && !g.classList.contains("hidden"));
+  }
+
+  /** True while a run is in progress and the corner clock should advance (not game over / frozen end). */
+  function shouldFreezeGameClockForOpenOverlay() {
+    return Boolean(gameStartMs) && gameTimerMayResume && !isGameOverBoard;
+  }
+
+  function resetGameTimerOverlayPauseState() {
+    gameTimerOverlayPauseDepth = 0;
+    gameTimerElapsedMsWhenPaused = 0;
+    skipNextOverlayPauseDepthBump = false;
+  }
+
+  /** Call when opening a blocking overlay during an active run (modals, restart confirm, two-player screens). */
+  function pauseGameTimerForOverlay() {
+    if (skipNextOverlayPauseDepthBump && gameTimerOverlayPauseDepth > 0) {
+      skipNextOverlayPauseDepthBump = false;
+      return;
+    }
+    if (gameTimerOverlayPauseDepth > 0) {
+      gameTimerOverlayPauseDepth++;
+      return;
+    }
+    if (!shouldFreezeGameClockForOpenOverlay()) return;
+    gameTimerOverlayPauseDepth = 1;
+    gameTimerElapsedMsWhenPaused = Date.now() - gameStartMs;
+    gameStartMs = Date.now() - gameTimerElapsedMsWhenPaused;
+    stopGameTimer();
+    const el = gameTimerDom();
+    if (el) {
+      el.textContent = formatGameElapsed(gameTimerElapsedMsWhenPaused);
+    }
+  }
+
+  /** Call when closing an overlay; resumes the timer when the last overlay closes. */
+  function resumeGameTimerAfterOverlay() {
+    if (gameTimerOverlayPauseDepth === 0) return;
+    gameTimerOverlayPauseDepth--;
+    if (gameTimerOverlayPauseDepth > 0) return;
+    const savedMs = gameTimerElapsedMsWhenPaused;
+    gameTimerElapsedMsWhenPaused = 0;
+    if (!gameStartMs) return;
+    if (!gameTimerMayResume) return;
+    if (isGameOverBoard) return;
+    gameStartMs = Date.now() - savedMs;
+    if (gameTimerId != null) return;
+    gameTimerId = window.setInterval(tickGameTimer, 1000);
+    tickGameTimer();
+  }
+
+  /** Two-player: show results modal right after pre-results without extra pause depth. */
+  function markTimerOverlayLayerReplace() {
+    skipNextOverlayPauseDepthBump = true;
   }
 
   function getHighScore() {
@@ -221,6 +328,21 @@
     return localStorage.getItem(LS_SOUND) !== "off";
   }
 
+  function isAutoPlayAgainOn() {
+    return localStorage.getItem(LS_AUTO_PLAY_AGAIN) === "on";
+  }
+
+  function isIgnoreConfirmOn() {
+    return localStorage.getItem(LS_IGNORE_CONFIRM) === "on";
+  }
+
+  function clearAutoPlayAgainAfterLossTimer() {
+    if (autoPlayAgainAfterLossTimerId != null) {
+      clearTimeout(autoPlayAgainAfterLossTimerId);
+      autoPlayAgainAfterLossTimerId = null;
+    }
+  }
+
   function setSoundLabel() {
     const on = isSoundOn();
     if (soundState) soundState.textContent = on ? "On" : "Off";
@@ -246,50 +368,13 @@
     }
   }
 
-  function canVibrate() {
-    return typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
-  }
-
-  function isVibrationSettingOn() {
-    return localStorage.getItem(LS_VIBRATION) !== "off";
-  }
-
-  function setVibrationLabel() {
-    if (!vibrationState || !btnToggleVibration) return;
-    if (!canVibrate()) {
-      vibrationState.textContent = "N/A";
-      vibrationState.classList.remove("text-primary");
-      vibrationState.classList.add("text-slate-400", "dark:text-on-surface/45");
-      btnToggleVibration.disabled = true;
-      btnToggleVibration.setAttribute("aria-disabled", "true");
-      btnToggleVibration.setAttribute("aria-checked", "false");
-      if (vibrationSwitchTrack && vibrationSwitchKnob) {
-        const vt = vibrationSwitchTrack;
-        vt.classList.remove(
-          "bg-gradient-to-r",
-          "from-[#a6c9f8]",
-          "to-[#6285b0]",
-          "shadow-md",
-          "shadow-sky-400/20",
-          "bg-slate-400",
-          "dark:bg-primary/28",
-          "shadow-inner"
-        );
-        vt.classList.add("bg-slate-300", "dark:bg-primary/14", "opacity-60", "shadow-inner");
-        vibrationSwitchKnob.style.transform = "translateX(0)";
-      }
-      return;
-    }
-    btnToggleVibration.disabled = false;
-    btnToggleVibration.removeAttribute("aria-disabled");
-    vibrationState.classList.remove("text-slate-400", "dark:text-on-surface/45");
-    const on = isVibrationSettingOn();
-    vibrationState.textContent = on ? "On" : "Off";
-    btnToggleVibration.setAttribute("aria-checked", on ? "true" : "false");
-    if (vibrationSwitchTrack && vibrationSwitchKnob) {
-      const vt = vibrationSwitchTrack;
-      vt.classList.remove("bg-slate-300", "dark:bg-primary/14", "opacity-60");
-      vt.classList.remove(
+  function setAutoPlayAgainLabel() {
+    const on = isAutoPlayAgainOn();
+    if (autoPlayAgainState) autoPlayAgainState.textContent = on ? "On" : "Off";
+    if (btnToggleAutoPlayAgain) btnToggleAutoPlayAgain.setAttribute("aria-checked", on ? "true" : "false");
+    if (autoPlayAgainSwitchTrack && autoPlayAgainSwitchKnob) {
+      const st = autoPlayAgainSwitchTrack;
+      st.classList.remove(
         "bg-slate-400",
         "dark:bg-primary/28",
         "bg-gradient-to-r",
@@ -300,59 +385,37 @@
         "shadow-sky-400/20"
       );
       if (on) {
-        vt.classList.add("bg-gradient-to-r", "from-[#a6c9f8]", "to-[#6285b0]", "shadow-md", "shadow-sky-400/20");
+        st.classList.add("bg-gradient-to-r", "from-[#a6c9f8]", "to-[#6285b0]", "shadow-md", "shadow-sky-400/20");
       } else {
-        vt.classList.add("bg-slate-400", "dark:bg-primary/28", "shadow-inner");
+        st.classList.add("bg-slate-400", "dark:bg-primary/28", "shadow-inner");
       }
-      vibrationSwitchKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
+      autoPlayAgainSwitchKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
     }
   }
 
-  /** @param {number | number[]} pattern */
-  function haptic(pattern) {
-    if (!isVibrationSettingOn() || !canVibrate()) return;
-    try {
-      navigator.vibrate(pattern);
-    } catch (_) {}
-  }
-
-  function hapticSelect() {
-    haptic(14);
-  }
-
-  function hapticRollLand() {
-    haptic(20);
-  }
-
-  function hapticConfirm() {
-    haptic(26);
-  }
-
-  function hapticWin() {
-    haptic([35, 55, 35, 55, 45]);
-  }
-
-  function hapticGameOver() {
-    haptic([500, 100, 500]);
-  }
-
-  /** @param {string} reason */
-  function playGameOverHaptic(reason) {
-    if (gameOverHapticPlayedThisTap) {
-      gameOverHapticPlayedThisTap = false;
-      return;
+  function setIgnoreConfirmLabel() {
+    const on = isIgnoreConfirmOn();
+    if (ignoreConfirmState) ignoreConfirmState.textContent = on ? "On" : "Off";
+    if (btnToggleIgnoreConfirm) btnToggleIgnoreConfirm.setAttribute("aria-checked", on ? "true" : "false");
+    if (ignoreConfirmSwitchTrack && ignoreConfirmSwitchKnob) {
+      const st = ignoreConfirmSwitchTrack;
+      st.classList.remove(
+        "bg-slate-400",
+        "dark:bg-primary/28",
+        "bg-gradient-to-r",
+        "from-[#a6c9f8]",
+        "to-[#6285b0]",
+        "shadow-inner",
+        "shadow-md",
+        "shadow-sky-400/20"
+      );
+      if (on) {
+        st.classList.add("bg-gradient-to-r", "from-[#a6c9f8]", "to-[#6285b0]", "shadow-md", "shadow-sky-400/20");
+      } else {
+        st.classList.add("bg-slate-400", "dark:bg-primary/28", "shadow-inner");
+      }
+      ignoreConfirmSwitchKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
     }
-    if (reason === "unwinnable-draw") {
-      pendingGameOverVibration = true;
-      return;
-    }
-    hapticGameOver();
-  }
-
-  function tryConsumePendingGameOverHaptic() {
-    if (!pendingGameOverVibration) return;
-    pendingGameOverVibration = false;
-    hapticGameOver();
   }
 
   function defaultStats() {
@@ -396,16 +459,20 @@
     const runs = s.runs || 0;
     const wins = s.wins || 0;
     const losses = s.losses || 0;
+    const finished = wins + losses;
+    const playTimeMs = s.playTimeMs || 0;
     const elRuns = $("#stat-runs");
     const elWins = $("#stat-wins");
-    const elLosses = $("#stat-losses");
     const elWr = $("#stat-winrate");
+    const elAvg = $("#stat-avgtime");
     const elPt = $("#stat-playtime");
     if (elRuns) elRuns.textContent = String(runs);
     if (elWins) elWins.textContent = String(wins);
-    if (elLosses) elLosses.textContent = String(losses);
     if (elWr) elWr.textContent = runs > 0 ? `${Math.round((wins / runs) * 100)}%` : "—";
-    if (elPt) elPt.textContent = formatGameElapsed(s.playTimeMs || 0);
+    if (elAvg) {
+      elAvg.textContent = finished > 0 ? formatGameElapsed(Math.round(playTimeMs / finished)) : "—";
+    }
+    if (elPt) elPt.textContent = formatGameElapsed(playTimeMs);
   }
 
   /** @returns {Array<{ score: number; timeMs: number; at: number }>} */
@@ -497,7 +564,8 @@
 
   function refreshSettingsPanel() {
     setSoundLabel();
-    setVibrationLabel();
+    setAutoPlayAgainLabel();
+    setIgnoreConfirmLabel();
   }
 
   let audioCtx = null;
@@ -834,7 +902,14 @@
         btn.className =
           "flex w-full items-center justify-between px-3 py-1 rounded-lg border text-left transition-all bg-sky-100 border-sky-400/50 ring-2 ring-sky-400/35 shadow-md dark:bg-slate-950/95 dark:border-primary/35 dark:ring-primary/40 " +
           "disabled:pointer-events-none disabled:opacity-90";
-        btn.innerHTML = `
+        btn.innerHTML = isIgnoreConfirmOn()
+          ? `
+          <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+            <span class="font-headline font-bold text-sm text-sky-800/40 dark:text-white/35 shrink-0 tabular-nums">${String(i + 1).padStart(2, "0")}</span>
+            <div class="h-8 w-px bg-sky-300/80 dark:bg-white/25 shrink-0"></div>
+            <span class="font-headline font-extrabold text-2xl sm:text-3xl text-sky-900 dark:text-white tracking-tight tabular-nums">${currentNumber}</span>
+          </div>`
+          : `
           <div class="flex items-center gap-3 sm:gap-4 min-w-0">
             <span class="font-headline font-bold text-sm text-sky-800/40 dark:text-white/35 shrink-0 tabular-nums">${String(i + 1).padStart(2, "0")}</span>
             <div class="h-8 w-px bg-sky-300/80 dark:bg-white/25 shrink-0"></div>
@@ -900,6 +975,13 @@
     if (isRolling || currentNumber == null) return;
     if (locked[index] != null) return;
 
+    if (isIgnoreConfirmOn()) {
+      previewIndex = index;
+      beepRowSelect();
+      tryConfirm();
+      return;
+    }
+
     if (previewIndex === index) {
       tryConfirm();
       return;
@@ -908,14 +990,12 @@
     if (previewIndex != null && previewIndex !== index) {
       previewIndex = index;
       beepRowSelect();
-      hapticSelect();
       renderSlots();
       return;
     }
 
     previewIndex = index;
     beepRowSelect();
-    hapticSelect();
     renderSlots();
   }
 
@@ -932,7 +1012,6 @@
 
     locked[i] = v;
     previewIndex = null;
-    hapticConfirm();
 
     const done = filledCount();
     if (done >= SLOT_COUNT) {
@@ -1033,8 +1112,17 @@
         goMessage.setAttribute("aria-hidden", hide ? "true" : "false");
       }
       showPostGameoverBar();
+      if (isAutoPlayAgainOn()) {
+        clearAutoPlayAgainAfterLossTimer();
+        autoPlayAgainAfterLossTimerId = window.setTimeout(() => {
+          autoPlayAgainAfterLossTimerId = null;
+          if (!isGameOverBoard) return;
+          const g = screenGame || document.getElementById("screen-game");
+          if (!g || g.classList.contains("hidden")) return;
+          startGame();
+        }, AUTO_PLAY_AGAIN_DELAY_MS);
+      }
     }
-    playGameOverHaptic(reason);
     playGameOverSound();
     renderSlots();
     triggerRollLossPulse();
@@ -1048,7 +1136,6 @@
     if (hooks && typeof hooks.handleRunEnd === "function") {
       if (hooks.handleRunEnd({ outcome: "win", reason: "", score: SLOT_COUNT, elapsedMs })) {
         isGameOverBoard = false;
-        hapticWin();
         playWinFanfare();
         return;
       }
@@ -1061,12 +1148,12 @@
     const winTimeEl = $("#win-time-elapsed");
     if (winTimeEl) winTimeEl.textContent = formatGameElapsed(elapsedMs);
     showOverlay(overlayWin, $("#overlay-win-panel"));
-    hapticWin();
     playWinFanfare();
     fireConfetti();
   }
 
   function showOverlay(overlay, panel) {
+    pauseGameTimerForOverlay();
     overlay.classList.remove("hidden");
     overlay.setAttribute("aria-hidden", "false");
     requestAnimationFrame(() => {
@@ -1081,6 +1168,7 @@
     setTimeout(() => {
       overlay.classList.add("hidden");
       overlay.setAttribute("aria-hidden", "true");
+      resumeGameTimerAfterOverlay();
     }, 280);
   }
 
@@ -1141,33 +1229,6 @@
       return window.matchMedia("(hover: none), (pointer: coarse)").matches;
     } catch (_) {
       return false;
-    }
-  }
-
-  /** Android Chrome: vibrate on pointerdown so transient activation applies (click is too late). */
-  function onSlotsContainerPointerDown(e) {
-    if (!isCoarsePointer()) return;
-    if (!isVibrationSettingOn() || !canVibrate()) return;
-    const btn = e.target.closest("[data-slot-index]");
-    if (!btn || btn.disabled) return;
-    const index = parseInt(btn.dataset.slotIndex, 10);
-    if (isGameOverBoard || isRolling || currentNumber == null) return;
-    if (locked[index] != null) return;
-    if (previewIndex !== index) {
-      gameOverHapticPlayedThisTap = false;
-      return;
-    }
-    const v = currentNumber;
-    if (!validatePlacement(index, v)) {
-      hapticGameOver();
-      gameOverHapticPlayedThisTap = true;
-      return;
-    }
-    const nextLocked = locked.slice();
-    nextLocked[index] = v;
-    if (!greedyRemainingFeasible(nextLocked)) {
-      hapticGameOver();
-      gameOverHapticPlayedThisTap = true;
     }
   }
 
@@ -1262,7 +1323,6 @@
       renderSlots();
       pendingMobileHintReveal = false;
       completedDrawCount += 1;
-      hapticRollLand();
       beep(380, 0.04);
     };
     /* Use a fixed delay for game logic — some browsers fire transitionend early or twice,
@@ -1278,6 +1338,7 @@
   }
 
   function startGame() {
+    clearAutoPlayAgainAfterLossTimer();
     const hooks = window.OneTo500Hooks;
     const isTwoPlayer = Boolean(hooks && hooks.skipRunStatsBump);
     trackUmami("game-run-start", { mode: isTwoPlayer ? "two-player" : "solo" });
@@ -1303,8 +1364,6 @@
       rollLossPulseClearTimer = null;
     }
     hidePostGameoverBar();
-    pendingGameOverVibration = false;
-    gameOverHapticPlayedThisTap = false;
     resetRollDrawLabelGameOverStyle();
     const rollDrawLabel = $("#roll-draw-label");
     if (rollDrawLabel) {
@@ -1313,11 +1372,13 @@
         rollDrawLabel.textContent = "Current draw";
       }
     }
+    resetGameTimerOverlayPauseState();
     startGameTimer();
     scheduleRoll();
   }
 
   function goHome() {
+    clearAutoPlayAgainAfterLossTimer();
     const hooks = window.OneTo500Hooks;
     if (hooks && typeof hooks.onGoHomeFromGame === "function") {
       hooks.onGoHomeFromGame();
@@ -1335,8 +1396,6 @@
     earlyHintRevealPhase = false;
     isGameOverBoard = false;
     hidePostGameoverBar();
-    pendingGameOverVibration = false;
-    gameOverHapticPlayedThisTap = false;
     resetRollDrawLabelGameOverStyle();
     const rollLblHome = $("#roll-draw-label");
     if (rollLblHome) rollLblHome.removeAttribute("aria-live");
@@ -1354,6 +1413,7 @@
   function openModal(id) {
     const m = document.getElementById(id);
     if (!m) return;
+    pauseGameTimerForOverlay();
     m.classList.add("is-open");
     m.setAttribute("aria-hidden", "false");
   }
@@ -1363,6 +1423,7 @@
     if (!m) return;
     m.classList.remove("is-open");
     m.setAttribute("aria-hidden", "true");
+    resumeGameTimerAfterOverlay();
   }
 
   function bind() {
@@ -1411,7 +1472,6 @@
       });
     }
 
-    slotsContainer.addEventListener("pointerdown", onSlotsContainerPointerDown, { passive: true });
     slotsContainer.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-slot-index]");
       if (!btn || btn.disabled) return;
@@ -1421,16 +1481,12 @@
     const btnPostGoRetry = $("#btn-post-go-retry");
     const btnPostGoHome = $("#btn-post-go-home");
     if (btnPostGoRetry) {
-      btnPostGoRetry.addEventListener("pointerdown", tryConsumePendingGameOverHaptic);
-      btnPostGoRetry.addEventListener("click", tryConsumePendingGameOverHaptic);
       btnPostGoRetry.addEventListener("click", () => {
         hidePostGameoverBar();
         startGame();
       });
     }
     if (btnPostGoHome) {
-      btnPostGoHome.addEventListener("pointerdown", tryConsumePendingGameOverHaptic);
-      btnPostGoHome.addEventListener("click", tryConsumePendingGameOverHaptic);
       btnPostGoHome.addEventListener("click", () => {
         hidePostGameoverBar();
         goHome();
@@ -1459,13 +1515,22 @@
       setSoundLabel();
     });
 
-    $("#btn-toggle-vibration").addEventListener("click", () => {
-      if (!canVibrate()) return;
-      const on = localStorage.getItem(LS_VIBRATION) === "off";
-      localStorage.setItem(LS_VIBRATION, on ? "on" : "off");
-      setVibrationLabel();
-      if (on) haptic(28);
-    });
+    if (btnToggleAutoPlayAgain) {
+      btnToggleAutoPlayAgain.addEventListener("click", () => {
+        const nextOn = !isAutoPlayAgainOn();
+        localStorage.setItem(LS_AUTO_PLAY_AGAIN, nextOn ? "on" : "off");
+        setAutoPlayAgainLabel();
+      });
+    }
+
+    if (btnToggleIgnoreConfirm) {
+      btnToggleIgnoreConfirm.addEventListener("click", () => {
+        const nextOn = !isIgnoreConfirmOn();
+        localStorage.setItem(LS_IGNORE_CONFIRM, nextOn ? "on" : "off");
+        setIgnoreConfirmLabel();
+        renderSlots();
+      });
+    }
 
     $("#btn-reset-stats").addEventListener("click", () => {
       localStorage.removeItem(LS_STATS);
@@ -1516,7 +1581,8 @@
   loadTheme();
   refreshHighScoreUI();
   setSoundLabel();
-  setVibrationLabel();
+  setAutoPlayAgainLabel();
+  setIgnoreConfirmLabel();
   refreshStatsDisplay();
   refreshLeaderboardTable();
   bind();
@@ -1527,5 +1593,9 @@
     goHome,
     formatGameElapsed,
     trackUmami,
+    pauseTimerForOverlay: pauseGameTimerForOverlay,
+    resumeTimerAfterOverlay: resumeGameTimerAfterOverlay,
+    markTimerOverlayLayerReplace,
+    resetTimerOverlayPauseState: resetGameTimerOverlayPauseState,
   };
 })();

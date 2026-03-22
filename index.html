@@ -173,6 +173,24 @@
       -webkit-tap-highlight-color: transparent;
       font-family: Inter, system-ui, sans-serif;
     }
+    /* Installed PWA (standalone): no pull-to-refresh / rubber-band overscroll; fill status-bar seam */
+    @media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+      html {
+        overscroll-behavior: none;
+        overscroll-behavior-y: none;
+      }
+      body {
+        overscroll-behavior: none;
+        overscroll-behavior-y: none;
+      }
+      /* Match theme-color / body so no bright hairline under the system status bar */
+      html.dark {
+        background-color: #0f172a;
+      }
+      html:not(.dark) {
+        background-color: #f1f5f9;
+      }
+    }
     /* Fixed bottom bars: safe area + extra clearance above home indicator / browser UI */
     .safe-pb-bottom {
       padding-bottom: calc(1.25rem + constant(safe-area-inset-bottom));
@@ -549,8 +567,8 @@
       <p id="go-message" class="text-center text-xs text-slate-600 dark:text-on-surface-muted leading-snug px-0.5 max-h-[4.25rem] overflow-y-auto hidden" aria-hidden="true"></p>
       <p class="text-center text-sm text-slate-600 dark:text-on-surface-muted">Score this run: <span id="go-score" class="text-primary font-bold tabular-nums">0</span>/10</p>
       <div class="flex gap-2 pt-0.5">
-        <button type="button" id="btn-post-go-home" class="flex-1 py-4 sm:py-2.5 min-h-[3rem] sm:min-h-0 rounded-xl text-slate-600 dark:text-on-surface-muted text-xs font-semibold border border-slate-300 dark:border-white/15 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:scale-[0.99]">Back to start</button>
-        <button type="button" id="btn-post-go-retry" class="flex flex-1 items-center justify-center gap-2 py-4 sm:py-2.5 min-h-[3rem] sm:min-h-0 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-[10px] font-bold uppercase tracking-wider active:scale-[0.98] transition-transform">
+        <button type="button" id="btn-post-go-home" class="flex-1 py-4 sm:py-2.5 min-h-[3rem] sm:min-h-0 rounded-xl text-slate-600 dark:text-on-surface-muted font-headline text-xs font-semibold uppercase tracking-wider border border-slate-300 dark:border-white/15 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:scale-[0.99]">Back to start</button>
+        <button type="button" id="btn-post-go-retry" class="flex flex-1 items-center justify-center gap-2 py-4 sm:py-2.5 min-h-[3rem] sm:min-h-0 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-xs font-bold uppercase tracking-wider active:scale-[0.98] transition-transform">
           <svg class="w-4 h-4 shrink-0 -ml-0.5 opacity-95" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
           </svg>
@@ -584,26 +602,25 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </span>
         <div class="min-w-0 flex-1 text-left">
-          <p class="text-[10px] font-headline font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface/50">Victory</p>
-          <h3 id="win-title" class="font-headline text-lg font-bold text-slate-900 dark:text-on-surface">You won</h3>
-          <p class="mt-1 text-xs text-slate-600 dark:text-on-surface-muted leading-snug">All ten numbers locked in perfect ascending order.</p>
+          <p class="text-xs font-headline font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface/50">Victory</p>
+          <h3 id="win-title" class="font-headline text-2xl sm:text-3xl font-bold text-slate-900 dark:text-on-surface leading-tight">You won</h3>
+          <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-on-surface-muted leading-snug">All ten numbers locked in perfect ascending order.</p>
         </div>
       </div>
       <div class="px-5 py-4 space-y-4 bg-slate-50 dark:bg-surface-low/50">
         <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-surface-low px-3 py-3 text-center">
-            <p class="text-[10px] font-headline font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface/50 mb-1">This run</p>
-            <p id="win-time-elapsed" class="font-headline text-xl font-bold tabular-nums text-sky-700 dark:text-primary">0:00</p>
+          <div class="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-surface-low px-3 py-4 text-center">
+            <p class="text-xs font-headline font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface/50 mb-2">This run</p>
+            <p id="win-time-elapsed" class="font-headline text-2xl sm:text-3xl font-bold tabular-nums text-sky-700 dark:text-primary leading-none">0:00</p>
           </div>
-          <div class="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-surface-low px-3 py-3 text-center">
-            <p class="text-[10px] font-headline font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface/50 mb-1">Depth</p>
-            <p class="font-headline text-xl font-bold tabular-nums text-slate-900 dark:text-on-surface">
+          <div class="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-surface-low px-3 py-4 text-center">
+            <p class="text-xs font-headline font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface/50 mb-2">Depth</p>
+            <p class="font-headline text-2xl sm:text-3xl font-bold tabular-nums text-slate-900 dark:text-on-surface leading-none">
               <span class="text-sky-700 dark:text-primary">10</span><span class="text-slate-400 dark:text-on-surface-muted font-semibold"> / 10</span>
             </p>
-            <p class="text-[10px] font-headline font-semibold uppercase tracking-wide text-slate-400 dark:text-on-surface-muted mt-1">slots</p>
           </div>
         </div>
-        <button type="button" id="btn-win-continue" class="w-full py-3.5 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-xs font-bold uppercase tracking-wider shadow-md shadow-sky-400/20 dark:shadow-black/30 active:scale-[0.98] transition-transform">Continue</button>
+        <button type="button" id="btn-win-continue" class="w-full py-3.5 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-sm font-bold uppercase tracking-wider shadow-md shadow-sky-400/20 dark:shadow-black/30 active:scale-[0.98] transition-transform">Continue</button>
       </div>
     </div>
   </div>
@@ -619,7 +636,12 @@
       <h3 id="restart-confirm-title" class="font-headline text-lg font-bold text-slate-900 dark:text-on-surface text-center mb-2">Start a new run?</h3>
       <p class="text-sm text-slate-600 dark:text-on-surface-muted text-center mb-6">Your current progress will be lost.</p>
       <div class="flex flex-col gap-2">
-        <button type="button" id="btn-restart-confirm-yes" class="w-full py-3.5 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-xs font-bold uppercase tracking-wider active:scale-[0.98] transition-transform">New game</button>
+        <button type="button" id="btn-restart-confirm-yes" class="flex w-full items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-xs font-bold uppercase tracking-wider active:scale-[0.98] transition-transform">
+          <svg class="w-4 h-4 shrink-0 -ml-0.5 opacity-95" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
+          </svg>
+          New game
+        </button>
         <button type="button" id="btn-restart-confirm-cancel" class="w-full py-3 rounded-xl border-2 border-slate-200 dark:border-white/15 text-slate-700 dark:text-on-surface font-headline text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-transform">Cancel</button>
       </div>
     </div>
@@ -707,17 +729,31 @@
             </span>
           </span>
         </button>
-        <button type="button" id="btn-toggle-vibration" role="switch" aria-checked="true" class="group flex w-full items-center justify-between gap-3 py-3.5 px-4 rounded-lg border border-slate-300 bg-white text-left shadow-sm transition-colors hover:bg-slate-50 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-55 disabled:hover:bg-white dark:bg-surface-lowest/40 dark:border-white/10 dark:shadow-none dark:hover:bg-surface-low/60 dark:disabled:hover:bg-surface-lowest/40">
+        <button type="button" id="btn-toggle-auto-play-again" role="switch" aria-checked="false" class="group flex w-full items-center justify-between gap-3 py-3.5 px-4 rounded-lg border border-slate-300 bg-white text-left shadow-sm transition-colors hover:bg-slate-50 active:scale-[0.99] dark:bg-surface-lowest/40 dark:border-white/10 dark:shadow-none dark:hover:bg-surface-low/60">
           <span class="flex items-center gap-3 min-w-0 flex-1">
             <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
             </span>
-            <span class="text-sm font-semibold text-slate-900 dark:text-on-surface truncate">Vibration</span>
+            <span class="text-sm font-semibold text-slate-900 dark:text-on-surface truncate">Auto Play again</span>
           </span>
           <span class="flex items-center gap-3 shrink-0">
-            <span id="vibration-state" class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface-muted w-9 text-right tabular-nums">On</span>
-            <span id="vibration-switch-track" class="relative h-8 w-[3.25rem] shrink-0 rounded-full p-1 transition-colors duration-200 bg-slate-400 dark:bg-primary/28 shadow-inner">
-              <span id="vibration-switch-knob" class="block h-6 w-6 rounded-full bg-white shadow-md ring-1 ring-black/5 dark:ring-white/20 transition-transform duration-200 ease-out will-change-transform"></span>
+            <span id="auto-play-again-state" class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface-muted w-9 text-right tabular-nums">Off</span>
+            <span id="auto-play-again-switch-track" class="relative h-8 w-[3.25rem] shrink-0 rounded-full p-1 transition-colors duration-200 bg-slate-400 dark:bg-primary/28 shadow-inner">
+              <span id="auto-play-again-switch-knob" class="block h-6 w-6 rounded-full bg-white shadow-md ring-1 ring-black/5 dark:ring-white/20 transition-transform duration-200 ease-out will-change-transform"></span>
+            </span>
+          </span>
+        </button>
+        <button type="button" id="btn-toggle-ignore-confirm" role="switch" aria-checked="false" class="group flex w-full items-center justify-between gap-3 py-3.5 px-4 rounded-lg border border-slate-300 bg-white text-left shadow-sm transition-colors hover:bg-slate-50 active:scale-[0.99] dark:bg-surface-lowest/40 dark:border-white/10 dark:shadow-none dark:hover:bg-surface-low/60">
+          <span class="flex items-center gap-3 min-w-0 flex-1">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59"/></svg>
+            </span>
+            <span class="text-sm font-semibold text-slate-900 dark:text-on-surface truncate">Ignore Confirm</span>
+          </span>
+          <span class="flex items-center gap-3 shrink-0">
+            <span id="ignore-confirm-state" class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface-muted w-9 text-right tabular-nums">Off</span>
+            <span id="ignore-confirm-switch-track" class="relative h-8 w-[3.25rem] shrink-0 rounded-full p-1 transition-colors duration-200 bg-slate-400 dark:bg-primary/28 shadow-inner">
+              <span id="ignore-confirm-switch-knob" class="block h-6 w-6 rounded-full bg-white shadow-md ring-1 ring-black/5 dark:ring-white/20 transition-transform duration-200 ease-out will-change-transform"></span>
             </span>
           </span>
         </button>
@@ -807,10 +843,10 @@
             <dd id="stat-runs" class="text-right tabular-nums">0</dd>
             <dt class="text-slate-600 dark:text-on-surface-muted font-semibold">Wins</dt>
             <dd id="stat-wins" class="text-right tabular-nums">0</dd>
-            <dt class="text-slate-600 dark:text-on-surface-muted font-semibold">Losses</dt>
-            <dd id="stat-losses" class="text-right tabular-nums">0</dd>
             <dt class="text-slate-600 dark:text-on-surface-muted font-semibold">Win rate</dt>
             <dd id="stat-winrate" class="text-right tabular-nums">—</dd>
+            <dt class="text-slate-600 dark:text-on-surface-muted font-semibold">Avg. time per run</dt>
+            <dd id="stat-avgtime" class="text-right tabular-nums">—</dd>
             <dt class="text-slate-600 dark:text-on-surface-muted font-semibold">Total time in runs</dt>
             <dd id="stat-playtime" class="text-right tabular-nums">0:00</dd>
           </dl>

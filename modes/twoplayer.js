@@ -77,6 +77,10 @@
   }
 
   function hidePassOverlay() {
+    const game = window.OneTo500Game;
+    if (game && typeof game.resumeTimerAfterOverlay === "function") {
+      game.resumeTimerAfterOverlay();
+    }
     const o = $("#tp-pass-overlay");
     if (o) {
       o.classList.add("hidden");
@@ -93,6 +97,10 @@
   }
 
   function showPreResultsOverlay() {
+    const game = window.OneTo500Game;
+    if (game && typeof game.pauseTimerForOverlay === "function") {
+      game.pauseTimerForOverlay();
+    }
     const o = $("#tp-pre-results-overlay");
     if (o) {
       o.classList.remove("hidden");
@@ -101,6 +109,10 @@
   }
 
   function showPassOverlay() {
+    const game = window.OneTo500Game;
+    if (game && typeof game.pauseTimerForOverlay === "function") {
+      game.pauseTimerForOverlay();
+    }
     const o = $("#tp-pass-overlay");
     if (o) {
       o.classList.remove("hidden");
@@ -110,6 +122,10 @@
 
   function openModalEl(m) {
     if (!m) return;
+    const game = window.OneTo500Game;
+    if (game && typeof game.pauseTimerForOverlay === "function") {
+      game.pauseTimerForOverlay();
+    }
     m.classList.add("is-open");
     m.setAttribute("aria-hidden", "false");
   }
@@ -118,6 +134,10 @@
     if (!m) return;
     m.classList.remove("is-open");
     m.setAttribute("aria-hidden", "true");
+    const game = window.OneTo500Game;
+    if (game && typeof game.resumeTimerAfterOverlay === "function") {
+      game.resumeTimerAfterOverlay();
+    }
   }
 
   function computeWinner(p1, p2) {
@@ -223,6 +243,10 @@
 
   function abortTwoPlayerSession() {
     clearTwoPlayerUiTimers();
+    const g = window.OneTo500Game;
+    if (g && typeof g.resetTimerOverlayPauseState === "function") {
+      g.resetTimerOverlayPauseState();
+    }
     session = null;
     resultsSnapshot = null;
     tearDownHooksOnly();
@@ -276,6 +300,9 @@
   function onShowResultsClick() {
     hidePreResultsOverlay();
     const game = window.OneTo500Game;
+    if (game && typeof game.markTimerOverlayLayerReplace === "function") {
+      game.markTimerOverlayLayerReplace();
+    }
     if (game && typeof game.trackUmami === "function") {
       game.trackUmami("two-player-results-shown");
     }

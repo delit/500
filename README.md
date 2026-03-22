@@ -26,8 +26,7 @@ Open **Settings** from the in-game footer (gear icon) on the game screen.
 | Control | What it does |
 |--------|----------------|
 | **Sound** | Toggle game audio on/off (stored in `localStorage`). |
-| **Vibration** | Toggle haptics on supported devices (stored in `localStorage`). |
-| **Statistics** | Runs, wins, losses, win rate, total time in runs; optional **Reset statistics**. |
+| **Statistics** | Runs, wins, win rate, average time per finished run, total time in runs; optional **Reset statistics**. |
 | **High score** | Leaderboard of finished runs (best depth first, then fastest time). |
 | **Two player mode** | Opens the two-player explainer; **Start match** begins a pass-and-play session (see below). |
 | **Install app** | Shown when the browser supports installing the PWA; adds the app to the home screen. |
