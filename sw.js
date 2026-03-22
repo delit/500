@@ -1,5 +1,13 @@
-const CACHE_NAME = "1to500-v90";
-const CORE = ["./", "./index.html", "./app.js", "./modes/twoplayer.js", "./manifest.json", "./icon.svg"];
+const CACHE_NAME = "1to500-v91";
+const CORE = [
+  "./",
+  "./index.html",
+  "./app.js",
+  "./modes/twoplayer.js",
+  "./manifest.json",
+  "./icon.svg",
+  "./googled9cd8fd26ac520c3.html"
+];
 const OPTIONAL = [
   "https://cdn.tailwindcss.com",
   "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap"
