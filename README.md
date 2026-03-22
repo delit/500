@@ -38,4 +38,6 @@ This repo includes a **`.nojekyll`** file so GitHub serves the files as plain st
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+**Personal, non-commercial use only** — you may run and study the project for yourself; you may **not** use it for business/commercial purposes, sell or license the code, or use it on behalf of a company or organization without written permission.
+
+Full terms: [LICENSE](./LICENSE) (custom license — not MIT/OSI).

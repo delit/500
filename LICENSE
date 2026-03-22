@@ -1,21 +1,31 @@
-MIT License
+Copyright (c) 2026 delit. All rights reserved.
 
-Copyright (c) 2026 delit
+## Personal use only (non-commercial)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software and its source code (the “Software”) are made available **only for private, personal, non-commercial use** by natural persons (individuals), on your own behalf.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### You may
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+- View and read the source code for learning or personal interest.
+- Run or self-host the Software **for yourself**, without charging others.
+- Modify the Software **for your own personal use**, without the permissions below.
+
+### You may not
+
+- **Sell, rent, sublicense, or otherwise offer for payment** the Software, modified copies, or substantial parts of the code (including as part of another product or service).
+- Use the Software or its code **for any commercial purpose**, including selling access, advertising-funded clones sold as a product, or paid support tied to redistribution of this code.
+- Use the Software or its code **on behalf of a company, organization, or other legal entity**, or in any **business, professional, or organizational** context (including internal tools, demos, training products, or client work), **except** where such use is legally required and no other license has been granted in writing by the copyright holder.
+
+### Other
+
+- **No trademark** rights are granted. The name, branding, and identity of the project remain with the copyright holder.
+- This license does **not** grant permission to imply endorsement or affiliation.
+- If you are unsure whether your use is allowed, you must **obtain prior written permission** from the copyright holder.
+
+---
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+*This is a custom, restrictive license (not OSI-approved). It is not MIT, Apache, or GPL.*
