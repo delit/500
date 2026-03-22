@@ -23,22 +23,19 @@
 
 - Static **HTML / CSS (Tailwind CDN) / JavaScript**
 - **PWA**: `manifest.json` + service worker (`sw.js`) for install and offline play
-- No build step — open `index.html` locally or deploy the repo root as static hosting
-
-## Local preview
-
-Serve the folder over HTTP (needed for the service worker), e.g. VS Code **Live Server**, or:
-
-```bash
-npx --yes serve .
-```
+- No build step — deploy the repo root as static hosting
 
 ## GitHub Pages
 
-Enable **Settings → Pages → Deploy from branch `main` / root**. The game will be available at:
+1. Repo **Settings → Pages**
+2. **Build and deployment**: Source **Deploy from a branch**
+3. Branch **main**, folder **/ (root)** → Save
+4. Wait 1–2 minutes; the site URL is shown on that same page (typically `https://delit.github.io/500/`)
 
-`https://delit.github.io/500/`
+If you get **404** at that URL, Pages is usually not enabled yet or the branch/folder is wrong. The code uses relative paths (`./app.js`, `./sw.js`, etc.), so it is meant to work under `/500/`.
+
+This repo includes a **`.nojekyll`** file so GitHub serves the files as plain static assets.
 
 ## License
 
-MIT — use and remix freely.
+MIT — see [LICENSE](./LICENSE).
