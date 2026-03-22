@@ -273,6 +273,10 @@
 
   function onShowResultsClick() {
     hidePreResultsOverlay();
+    const game = window.OneTo500Game;
+    if (game && typeof game.trackUmami === "function") {
+      game.trackUmami("two-player-results-shown");
+    }
     fillAndShowResults();
   }
 
@@ -283,6 +287,10 @@
     hidePreResultsOverlay();
     const game = window.OneTo500Game;
     if (game && game.goHome) game.goHome();
+  }
+
+  function onResultsPlayAgain() {
+    startTwoPlayerMatch();
   }
 
   function bind() {
@@ -301,6 +309,9 @@
 
     const btnDone = $("#btn-tp-results-done");
     if (btnDone) btnDone.addEventListener("click", onResultsDone);
+
+    const btnPlayAgain = $("#btn-tp-results-play-again");
+    if (btnPlayAgain) btnPlayAgain.addEventListener("click", onResultsPlayAgain);
 
     const btnShowRes = $("#btn-tp-show-results");
     if (btnShowRes) btnShowRes.addEventListener("click", onShowResultsClick);

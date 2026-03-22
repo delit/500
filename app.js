@@ -3,6 +3,16 @@
 
   window.OneTo500Hooks = window.OneTo500Hooks || {};
 
+  /** Umami custom events — https://umami.is/docs/track-events */
+  function trackUmami(eventName, data) {
+    try {
+      const u = window.umami;
+      if (!u || typeof u.track !== "function") return;
+      if (data != null && typeof data === "object") u.track(eventName, data);
+      else u.track(eventName);
+    } catch (_) {}
+  }
+
   const SLOT_COUNT = 10;
   const MIN_N = 1;
   const MAX_N = 500;
@@ -219,7 +229,7 @@
       const st = soundSwitchTrack;
       st.classList.remove(
         "bg-slate-400",
-        "dark:bg-white/25",
+        "dark:bg-primary/28",
         "bg-gradient-to-r",
         "from-[#a6c9f8]",
         "to-[#6285b0]",
@@ -230,7 +240,7 @@
       if (on) {
         st.classList.add("bg-gradient-to-r", "from-[#a6c9f8]", "to-[#6285b0]", "shadow-md", "shadow-sky-400/20");
       } else {
-        st.classList.add("bg-slate-400", "dark:bg-white/25", "shadow-inner");
+        st.classList.add("bg-slate-400", "dark:bg-primary/28", "shadow-inner");
       }
       soundSwitchKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
     }
@@ -262,10 +272,10 @@
           "shadow-md",
           "shadow-sky-400/20",
           "bg-slate-400",
-          "dark:bg-white/25",
+          "dark:bg-primary/28",
           "shadow-inner"
         );
-        vt.classList.add("bg-slate-300", "dark:bg-white/10", "opacity-60", "shadow-inner");
+        vt.classList.add("bg-slate-300", "dark:bg-primary/14", "opacity-60", "shadow-inner");
         vibrationSwitchKnob.style.transform = "translateX(0)";
       }
       return;
@@ -278,10 +288,10 @@
     btnToggleVibration.setAttribute("aria-checked", on ? "true" : "false");
     if (vibrationSwitchTrack && vibrationSwitchKnob) {
       const vt = vibrationSwitchTrack;
-      vt.classList.remove("bg-slate-300", "dark:bg-white/10", "opacity-60");
+      vt.classList.remove("bg-slate-300", "dark:bg-primary/14", "opacity-60");
       vt.classList.remove(
         "bg-slate-400",
-        "dark:bg-white/25",
+        "dark:bg-primary/28",
         "bg-gradient-to-r",
         "from-[#a6c9f8]",
         "to-[#6285b0]",
@@ -292,7 +302,7 @@
       if (on) {
         vt.classList.add("bg-gradient-to-r", "from-[#a6c9f8]", "to-[#6285b0]", "shadow-md", "shadow-sky-400/20");
       } else {
-        vt.classList.add("bg-slate-400", "dark:bg-white/25", "shadow-inner");
+        vt.classList.add("bg-slate-400", "dark:bg-primary/28", "shadow-inner");
       }
       vibrationSwitchKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
     }
@@ -1493,5 +1503,6 @@
     startGame,
     goHome,
     formatGameElapsed,
+    trackUmami,
   };
 })();
