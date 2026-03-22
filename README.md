@@ -61,17 +61,17 @@ Implementation notes:
 
 Full terms: [LICENSE](./LICENSE) (custom license — not MIT/OSI).
 
-## Screenshots
-
-<table>
-  <tr>
-    <td align="center" valign="top" width="33%"><strong>01</strong><br /><br /><img src="./img/01.png" width="280" alt="Screenshot 01" /></td>
-    <td align="center" valign="top" width="33%"><strong>02</strong><br /><br /><img src="./img/02.png" width="280" alt="Screenshot 02" /></td>
-    <td align="center" valign="top" width="33%"><strong>03</strong><br /><br /><img src="./img/03.png" width="280" alt="Screenshot 03" /></td>
-  </tr>
-  <tr>
-    <td align="center" valign="top"><strong>04</strong><br /><br /><img src="./img/04.png" width="280" alt="Screenshot 04" /></td>
-    <td align="center" valign="top"><strong>05</strong><br /><br /><img src="./img/05.png" width="280" alt="Screenshot 05" /></td>
-    <td align="center" valign="top"><strong>06</strong><br /><br /><img src="./img/06.png" width="280" alt="Screenshot 06" /></td>
-  </tr>
+<table border="0" cellspacing="0" cellpadding="12" bgcolor="#f1f5f9">
+  <tbody>
+    <tr bgcolor="#f1f5f9">
+      <td align="center" valign="top" width="33%"><img src="./img/01.png" width="280" alt="Screenshot 01" /></td>
+      <td align="center" valign="top" width="33%"><img src="./img/02.png" width="280" alt="Screenshot 02" /></td>
+      <td align="center" valign="top" width="33%"><img src="./img/03.png" width="280" alt="Screenshot 03" /></td>
+    </tr>
+    <tr bgcolor="#f1f5f9">
+      <td align="center" valign="top"><img src="./img/04.png" width="280" alt="Screenshot 04" /></td>
+      <td align="center" valign="top"><img src="./img/05.png" width="280" alt="Screenshot 05" /></td>
+      <td align="center" valign="top"><img src="./img/06.png" width="280" alt="Screenshot 06" /></td>
+    </tr>
+  </tbody>
 </table>
