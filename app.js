@@ -23,23 +23,6 @@
   /** { runs, wins, losses, playTimeMs } — device-local, offline-safe. */
   const LS_STATS = "1to500_stats";
 
-  // #region agent log
-  function __agentDbg(loc, msg, data, hypothesisId) {
-    fetch("http://127.0.0.1:7806/ingest/4aa1dc08-b460-47ce-ab0e-0e12506a41ab", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "5bbcbd" },
-      body: JSON.stringify({
-        sessionId: "5bbcbd",
-        location: loc,
-        message: msg,
-        data: data || {},
-        hypothesisId: hypothesisId || "",
-        timestamp: Date.now(),
-      }),
-    }).catch(function () {});
-  }
-  // #endregion
-
   /** @type {number[]} */
   let locked = Array(SLOT_COUNT).fill(null);
   let currentNumber = null;
@@ -767,24 +750,6 @@
           coarsePointer &&
           pendingMobileHintReveal &&
           completedDrawCount === 0;
-        if (useHintRevealAnim) {
-          // #region agent log
-          __agentDbg(
-            "app.js:renderSlots",
-            "hint_reveal_anim_row",
-            {
-              row: i,
-              pendingMobileHintReveal: pendingMobileHintReveal,
-              completedDrawCount: completedDrawCount,
-              showPlaceHint: showPlaceHint,
-              coarsePointer: coarsePointer,
-              isRolling: isRolling,
-              earlyHintRevealPhase: earlyHintRevealPhase,
-            },
-            "H3-H5"
-          );
-          // #endregion
-        }
         const hintStagger = useHintRevealAnim ? emptyHintStagger++ : 0;
         const hintRevealClass = useHintRevealAnim ? " slot-hint-reveal-anim" : "";
         const hintRevealStyle = useHintRevealAnim ? ` style="--hint-stagger:${hintStagger}"` : "";
@@ -1028,18 +993,6 @@
     }
     earlyHintRevealPhase = false;
     hintRevealAlreadyPlayed = false;
-    // #region agent log
-    __agentDbg(
-      "app.js:scheduleRoll",
-      "scheduleRoll_after_reset",
-      {
-        completedDrawCount: completedDrawCount,
-        hintRevealAlreadyPlayed: hintRevealAlreadyPlayed,
-        coarse: isCoarsePointer(),
-      },
-      "H1-H2"
-    );
-    // #endregion
     unlockAudioForRoll();
     isRolling = true;
     const finalNum = randomInt(MIN_N, MAX_N);
@@ -1078,51 +1031,15 @@
 
     rollEarlyHintTimerId = window.setTimeout(() => {
       rollEarlyHintTimerId = null;
-      // #region agent log
-      __agentDbg(
-        "app.js:earlyTimer",
-        "earlyTimer_entry",
-        {
-          rollSettled: rollSettled,
-          coarse: isCoarsePointer(),
-          completedDrawCount: completedDrawCount,
-          hintPlayed: hintRevealAlreadyPlayed,
-        },
-        "H1-H2-H4"
-      );
-      // #endregion
-      if (rollSettled) {
-        // #region agent log
-        __agentDbg("app.js:earlyTimer", "earlyTimer_skip", { reason: "rollSettled" }, "H2");
-        // #endregion
-        return;
-      }
-      if (!isCoarsePointer()) {
-        // #region agent log
-        __agentDbg("app.js:earlyTimer", "earlyTimer_skip", { reason: "not_coarse" }, "H4");
-        // #endregion
-        return;
-      }
-      if (completedDrawCount > 0) {
-        // #region agent log
-        __agentDbg("app.js:earlyTimer", "earlyTimer_skip", { reason: "draw_count_gt_0" }, "H1-H2");
-        // #endregion
-        return;
-      }
-      if (!screenGame || screenGame.classList.contains("hidden")) {
-        // #region agent log
-        __agentDbg("app.js:earlyTimer", "earlyTimer_skip", { reason: "screen_hidden" }, "H2");
-        // #endregion
-        return;
-      }
+      if (rollSettled) return;
+      if (!isCoarsePointer()) return;
+      if (completedDrawCount > 0) return;
+      if (!screenGame || screenGame.classList.contains("hidden")) return;
       hintRevealAlreadyPlayed = true;
       earlyHintRevealPhase = true;
       pendingMobileHintReveal = true;
       renderSlots();
       pendingMobileHintReveal = false;
-      // #region agent log
-      __agentDbg("app.js:earlyTimer", "earlyTimer_applied_stagger", { completedDrawCount: completedDrawCount }, "H2");
-      // #endregion
     }, Math.max(0, ROLL_MS - HINT_REVEAL_LEAD_MS));
 
     const settleRoll = () => {
@@ -1148,31 +1065,10 @@
       const isFirstDrawOfRun = completedDrawCount === 0;
       const doPlaceHintRevealAnim =
         _dbgCoarse && !hintRevealAlreadyPlayed && isFirstDrawOfRun;
-      // #region agent log
-      __agentDbg(
-        "app.js:settleRoll",
-        "settle_success",
-        {
-          coarse: _dbgCoarse,
-          hintRevealAlreadyPlayed: hintRevealAlreadyPlayed,
-          completedDrawCount: completedDrawCount,
-          doPlaceHintRevealAnim: doPlaceHintRevealAnim,
-        },
-        "H1-H3-H4"
-      );
-      // #endregion
       pendingMobileHintReveal = doPlaceHintRevealAnim;
       renderSlots();
       pendingMobileHintReveal = false;
       completedDrawCount += 1;
-      // #region agent log
-      __agentDbg(
-        "app.js:settleRoll",
-        "settle_after_render",
-        { completedDrawCount: completedDrawCount, didAnim: doPlaceHintRevealAnim },
-        "H1-H3"
-      );
-      // #endregion
       hapticRollLand();
       beep(380, 0.04);
     };
@@ -1191,9 +1087,6 @@
   function startGame() {
     bumpStatsRunStarted();
     completedDrawCount = 0;
-    // #region agent log
-    __agentDbg("app.js:startGame", "startGame_reset_draw_count", { completedDrawCount: 0 }, "H1");
-    // #endregion
     isGameOverBoard = false;
     locked = Array(SLOT_COUNT).fill(null);
     currentNumber = null;
