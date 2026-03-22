@@ -32,7 +32,7 @@ Open **Settings** from the in-game footer (gear icon) on the game screen.
 | **Two player mode** | Opens the two-player explainer; **Start match** begins a pass-and-play session (see below). |
 | **Install app** | Shown when the browser supports installing the PWA; adds the app to the home screen. |
 
-Statistics and high score do **not** include two-player practice runs — those matches skip global stats bumps so solo stats stay meaningful.
+Statistics and high score do **not** include two-player practice runs - those matches skip global stats bumps so solo stats stay meaningful.
 
 ## Two player mode
 

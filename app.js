@@ -958,7 +958,7 @@
     rollLossPulseClearTimer = window.setTimeout(() => {
       rollContainer.classList.remove("roll-loss-pulse");
       rollLossPulseClearTimer = null;
-    }, 1550);
+    }, 3100);
   }
 
   function triggerGameLossBackgroundPulse() {

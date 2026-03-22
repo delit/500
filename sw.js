@@ -1,4 +1,4 @@
-const CACHE_NAME = "1to500-v89";
+const CACHE_NAME = "1to500-v90";
 const CORE = ["./", "./index.html", "./app.js", "./modes/twoplayer.js", "./manifest.json", "./icon.svg"];
 const OPTIONAL = [
   "https://cdn.tailwindcss.com",

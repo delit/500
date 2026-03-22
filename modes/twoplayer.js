@@ -248,7 +248,7 @@
     closeModalEl($("#modal-settings"));
 
     const game = window.OneTo500Game;
-    // goHome() calls onGoHomeFromGame which would abort the session we just created — skip once.
+    // goHome() calls onGoHomeFromGame which would abort the session we just created - skip once.
     const hooksRef = window.OneTo500Hooks;
     const restoreGoHome = hooksRef.onGoHomeFromGame;
     hooksRef.onGoHomeFromGame = null;
