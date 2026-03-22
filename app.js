@@ -488,8 +488,8 @@
       const rank = i + 1;
       tr.innerHTML = `
         <td class="py-3 pl-4 pr-2 font-headline font-bold tabular-nums text-slate-500 dark:text-on-surface/45 w-10">${rank}</td>
-        <td class="py-3 px-2 font-semibold tabular-nums">${e.score}/10</td>
-        <td class="py-3 px-2 text-right font-headline font-bold tabular-nums">${formatGameElapsed(e.timeMs)}</td>
+        <td class="py-3 px-2 tabular-nums text-slate-600 dark:text-on-surface-muted text-[13px]">${e.score} of 10</td>
+        <td class="py-3 px-2 text-right tabular-nums text-slate-600 dark:text-on-surface-muted text-[13px]">${formatGameElapsed(e.timeMs)}</td>
         <td class="py-3 pl-2 pr-4 text-right text-slate-600 dark:text-on-surface-muted text-[13px] whitespace-nowrap">${formatLeaderboardDate(e.at)}</td>`;
       body.appendChild(tr);
     }
@@ -986,6 +986,22 @@
     );
   }
 
+  function resetRollDrawLabelGameOverStyle() {
+    const el = $("#roll-draw-label");
+    if (!el) return;
+    el.classList.remove("roll-draw-label--game-over");
+  }
+
+  function setRollDrawLabelGameOver() {
+    const el = $("#roll-draw-label");
+    if (!el) return;
+    el.classList.remove("roll-draw-label--game-over");
+    void el.offsetWidth;
+    el.textContent = "Game Over";
+    el.setAttribute("aria-live", "assertive");
+    el.classList.add("roll-draw-label--game-over");
+  }
+
   function gameOver(reason = "invalid") {
     clearRollSettleTimer();
     hidePostGameoverBar();
@@ -997,34 +1013,32 @@
     isRolling = false;
     const score = filledCount();
     const hooks = window.OneTo500Hooks;
+    let lossHandledByHook = false;
     if (hooks && typeof hooks.handleRunEnd === "function") {
-      if (hooks.handleRunEnd({ outcome: "loss", reason, score, elapsedMs })) {
-        playGameOverHaptic(reason);
-        playGameOverSound();
-        renderSlots();
-        triggerRollLossPulse();
-        return;
+      lossHandledByHook = hooks.handleRunEnd({ outcome: "loss", reason, score, elapsedMs });
+    }
+    if (!lossHandledByHook) {
+      recordStatsRunEnd(false, elapsedMs);
+      recordLeaderboardRun(score, elapsedMs);
+      recordBestTimeForScore(score, elapsedMs);
+      const best = getHighScore();
+      if (score > best) setHighScore(score);
+      else refreshHighScoreUI();
+      if (goScore) goScore.textContent = String(score);
+      if (goMessage) {
+        const text = GO_MSG[reason] ?? "";
+        goMessage.textContent = text;
+        const hide = !text.trim();
+        goMessage.classList.toggle("hidden", hide);
+        goMessage.setAttribute("aria-hidden", hide ? "true" : "false");
       }
+      showPostGameoverBar();
     }
-    recordStatsRunEnd(false, elapsedMs);
-    recordLeaderboardRun(score, elapsedMs);
-    recordBestTimeForScore(score, elapsedMs);
-    const best = getHighScore();
-    if (score > best) setHighScore(score);
-    else refreshHighScoreUI();
-    if (goScore) goScore.textContent = String(score);
-    if (goMessage) {
-      const text = GO_MSG[reason] ?? "";
-      goMessage.textContent = text;
-      const hide = !text.trim();
-      goMessage.classList.toggle("hidden", hide);
-      goMessage.setAttribute("aria-hidden", hide ? "true" : "false");
-    }
-    showPostGameoverBar();
     playGameOverHaptic(reason);
     playGameOverSound();
     renderSlots();
     triggerRollLossPulse();
+    setRollDrawLabelGameOver();
   }
 
   function win() {
@@ -1289,9 +1303,13 @@
     hidePostGameoverBar();
     pendingGameOverVibration = false;
     gameOverHapticPlayedThisTap = false;
+    resetRollDrawLabelGameOverStyle();
     const rollDrawLabel = $("#roll-draw-label");
-    if (rollDrawLabel && (!hooks || !hooks.skipRunStatsBump)) {
-      rollDrawLabel.textContent = "Current draw";
+    if (rollDrawLabel) {
+      rollDrawLabel.removeAttribute("aria-live");
+      if (!hooks || !hooks.skipRunStatsBump) {
+        rollDrawLabel.textContent = "Current draw";
+      }
     }
     startGameTimer();
     scheduleRoll();
@@ -1317,6 +1335,9 @@
     hidePostGameoverBar();
     pendingGameOverVibration = false;
     gameOverHapticPlayedThisTap = false;
+    resetRollDrawLabelGameOverStyle();
+    const rollLblHome = $("#roll-draw-label");
+    if (rollLblHome) rollLblHome.removeAttribute("aria-live");
     hideOverlay(overlayWin, $("#overlay-win-panel"));
     if (gameLossFlash) gameLossFlash.classList.remove("is-playing");
     screenGame.classList.add("hidden");

@@ -61,6 +61,7 @@
   function hideBanner() {
     const rollLabel = $("#roll-draw-label");
     if (rollLabel) {
+      rollLabel.classList.remove("roll-draw-label--game-over");
       rollLabel.textContent = "Current draw";
       rollLabel.removeAttribute("aria-live");
     }
@@ -69,6 +70,7 @@
   function showBanner(playerNum) {
     const rollLabel = $("#roll-draw-label");
     if (rollLabel) {
+      rollLabel.classList.remove("roll-draw-label--game-over");
       rollLabel.textContent = `PLAYER ${playerNum}`;
       rollLabel.setAttribute("aria-live", "polite");
     }
