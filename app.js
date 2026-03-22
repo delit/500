@@ -1,6 +1,8 @@
 (function () {
   "use strict";
 
+  window.OneTo500Hooks = window.OneTo500Hooks || {};
+
   const SLOT_COUNT = 10;
   const MIN_N = 1;
   const MAX_N = 500;
@@ -22,6 +24,8 @@
   const LS_VIBRATION = "1to500_vibration";
   /** { runs, wins, losses, playTimeMs } — device-local, offline-safe. */
   const LS_STATS = "1to500_stats";
+  /** Top runs in localStorage: JSON array { score, timeMs, at }[], max 10 (best score, then fastest time). */
+  const LS_LEADERBOARD = "1to500_leaderboard_top10";
 
   /** @type {number[]} */
   let locked = Array(SLOT_COUNT).fill(null);
@@ -369,10 +373,96 @@
     if (elPt) elPt.textContent = formatGameElapsed(s.playTimeMs || 0);
   }
 
+  /** @returns {Array<{ score: number; timeMs: number; at: number }>} */
+  function loadLeaderboard() {
+    try {
+      const raw = localStorage.getItem(LS_LEADERBOARD);
+      if (!raw) return [];
+      const a = JSON.parse(raw);
+      if (!Array.isArray(a)) return [];
+      return a
+        .filter(
+          (e) =>
+            e &&
+            typeof e === "object" &&
+            typeof e.score === "number" &&
+            typeof e.timeMs === "number" &&
+            typeof e.at === "number"
+        )
+        .map((e) => ({
+          score: Math.max(0, Math.min(SLOT_COUNT, Math.round(e.score))),
+          timeMs: Math.max(0, Math.round(e.timeMs)),
+          at: e.at,
+        }));
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /** @param {Array<{ score: number; timeMs: number; at: number }>} entries */
+  function saveLeaderboard(entries) {
+    try {
+      localStorage.setItem(LS_LEADERBOARD, JSON.stringify(entries.slice(0, 10)));
+    } catch (_) {}
+  }
+
+  function recordLeaderboardRun(score, elapsedMs) {
+    const sc = Math.max(0, Math.min(SLOT_COUNT, Math.round(score)));
+    const t = Math.max(0, Math.round(elapsedMs || 0));
+    const list = loadLeaderboard();
+    list.push({ score: sc, timeMs: t, at: Date.now() });
+    list.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.timeMs !== b.timeMs) return a.timeMs - b.timeMs;
+      return b.at - a.at;
+    });
+    saveLeaderboard(list.slice(0, 10));
+  }
+
+  function formatLeaderboardDate(ts) {
+    try {
+      return new Date(ts).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (_) {
+      return "—";
+    }
+  }
+
+  function refreshLeaderboardTable() {
+    const body = $("#leaderboard-body");
+    const empty = $("#leaderboard-empty");
+    const wrap = $("#leaderboard-table-wrap");
+    if (!body) return;
+    const rows = loadLeaderboard();
+    body.innerHTML = "";
+    if (rows.length === 0) {
+      if (wrap) wrap.classList.add("hidden");
+      if (empty) empty.classList.remove("hidden");
+      return;
+    }
+    if (wrap) wrap.classList.remove("hidden");
+    if (empty) empty.classList.add("hidden");
+    for (let i = 0; i < rows.length; i++) {
+      const e = rows[i];
+      const tr = document.createElement("tr");
+      tr.className =
+        "border-b border-slate-200/90 dark:border-white/[0.08] last:border-0 text-slate-900 dark:text-on-surface";
+      const rank = i + 1;
+      tr.innerHTML = `
+        <td class="py-3 pl-4 pr-2 font-headline font-bold tabular-nums text-slate-500 dark:text-on-surface/45 w-10">${rank}</td>
+        <td class="py-3 px-2 font-semibold tabular-nums">${e.score}/10</td>
+        <td class="py-3 px-2 text-right font-headline font-bold tabular-nums">${formatGameElapsed(e.timeMs)}</td>
+        <td class="py-3 pl-2 pr-4 text-right text-slate-600 dark:text-on-surface-muted text-[13px] whitespace-nowrap">${formatLeaderboardDate(e.at)}</td>`;
+      body.appendChild(tr);
+    }
+  }
+
   function refreshSettingsPanel() {
     setSoundLabel();
     setVibrationLabel();
-    refreshStatsDisplay();
   }
 
   let audioCtx = null;
@@ -871,7 +961,18 @@
     previewIndex = null;
     isRolling = false;
     const score = filledCount();
+    const hooks = window.OneTo500Hooks;
+    if (hooks && typeof hooks.handleRunEnd === "function") {
+      if (hooks.handleRunEnd({ outcome: "loss", reason, score, elapsedMs })) {
+        hapticGameOver();
+        playGameOverSound();
+        renderSlots();
+        triggerRollLossPulse();
+        return;
+      }
+    }
     recordStatsRunEnd(false, elapsedMs);
+    recordLeaderboardRun(score, elapsedMs);
     recordBestTimeForScore(score, elapsedMs);
     const best = getHighScore();
     if (score > best) setHighScore(score);
@@ -892,10 +993,20 @@
   }
 
   function win() {
-    isGameOverBoard = false;
     const elapsedMs = gameStartMs ? Date.now() - gameStartMs : 0;
     freezeGameTimer();
+    const hooks = window.OneTo500Hooks;
+    if (hooks && typeof hooks.handleRunEnd === "function") {
+      if (hooks.handleRunEnd({ outcome: "win", reason: "", score: SLOT_COUNT, elapsedMs })) {
+        isGameOverBoard = false;
+        hapticWin();
+        playWinFanfare();
+        return;
+      }
+    }
+    isGameOverBoard = false;
     recordStatsRunEnd(true, elapsedMs);
+    recordLeaderboardRun(SLOT_COUNT, elapsedMs);
     recordBestTimeForScore(SLOT_COUNT, elapsedMs);
     setHighScore(10);
     const winTimeEl = $("#win-time-elapsed");
@@ -971,6 +1082,8 @@
   }
 
   function randomInt(a, b) {
+    const hook = window.OneTo500Hooks && window.OneTo500Hooks.rollRandomInt;
+    if (typeof hook === "function") return hook(a, b);
     return a + Math.floor(Math.random() * (b - a + 1));
   }
 
@@ -1085,7 +1198,10 @@
   }
 
   function startGame() {
-    bumpStatsRunStarted();
+    const hooks = window.OneTo500Hooks;
+    if (!hooks || !hooks.skipRunStatsBump) {
+      bumpStatsRunStarted();
+    }
     completedDrawCount = 0;
     isGameOverBoard = false;
     locked = Array(SLOT_COUNT).fill(null);
@@ -1104,11 +1220,19 @@
       rollLossPulseClearTimer = null;
     }
     hidePostGameoverBar();
+    const rollDrawLabel = $("#roll-draw-label");
+    if (rollDrawLabel && (!hooks || !hooks.skipRunStatsBump)) {
+      rollDrawLabel.textContent = "Current draw";
+    }
     startGameTimer();
     scheduleRoll();
   }
 
   function goHome() {
+    const hooks = window.OneTo500Hooks;
+    if (hooks && typeof hooks.onGoHomeFromGame === "function") {
+      hooks.onGoHomeFromGame();
+    }
     clearRollSettleTimer();
     if (rollEarlyHintTimerId != null) {
       clearTimeout(rollEarlyHintTimerId);
@@ -1158,6 +1282,10 @@
     $("#btn-game-theme").addEventListener("click", toggleTheme);
 
     function restartGameNow() {
+      const hooks = window.OneTo500Hooks;
+      if (hooks && typeof hooks.abortTwoPlayerIfActive === "function") {
+        hooks.abortTwoPlayerIfActive();
+      }
       stopRollSound();
       startGame();
     }
@@ -1211,7 +1339,10 @@
     document.querySelectorAll(".modal-close").forEach((b) => {
       b.addEventListener("click", () => closeModal(b.getAttribute("data-close")));
     });
-    [modalHelp, modalSettings].forEach((m) => {
+    const modalStatistics = $("#modal-statistics");
+    const modalHighscores = $("#modal-highscores");
+    [modalHelp, modalSettings, modalStatistics, modalHighscores].forEach((m) => {
+      if (!m) return;
       m.addEventListener("click", (e) => {
         if (e.target === m) closeModal(m.id);
       });
@@ -1233,8 +1364,20 @@
 
     $("#btn-reset-stats").addEventListener("click", () => {
       localStorage.removeItem(LS_STATS);
+      localStorage.removeItem(LS_LEADERBOARD);
       refreshStatsDisplay();
+      refreshLeaderboardTable();
       beep(300, 0.05);
+    });
+
+    $("#btn-open-statistics").addEventListener("click", () => {
+      refreshStatsDisplay();
+      openModal("modal-statistics");
+    });
+
+    $("#btn-open-highscores").addEventListener("click", () => {
+      refreshLeaderboardTable();
+      openModal("modal-highscores");
     });
 
     $("#btn-install").addEventListener("click", async () => {
@@ -1270,6 +1413,13 @@
   setSoundLabel();
   setVibrationLabel();
   refreshStatsDisplay();
+  refreshLeaderboardTable();
   bind();
   renderSlots();
+
+  window.OneTo500Game = {
+    startGame,
+    goHome,
+    formatGameElapsed,
+  };
 })();
