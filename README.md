@@ -55,17 +55,6 @@ Implementation notes:
 - **Two player**: `modes/twoplayer.js` + hooks in `app.js` (`OneTo500Hooks`, `OneTo500Game`)
 - No build step — deploy the repo root as static hosting
 
-## GitHub Pages
-
-1. Repo **Settings → Pages**
-2. **Build and deployment**: Source **Deploy from a branch**
-3. Branch **main**, folder **/ (root)** → Save
-4. Wait 1–2 minutes; the site URL is shown on that same page (typically `https://delit.github.io/500/`)
-
-If you get **404** at that URL, Pages is usually not enabled yet or the branch/folder is wrong. The code uses relative paths (`./app.js`, `./sw.js`, etc.), so it is meant to work under `/500/`.
-
-This repo includes a **`.nojekyll`** file so GitHub serves the files as plain static assets.
-
 ## License
 
 **Personal, non-commercial use only** — you may run and study the project for yourself; you may **not** use it for business/commercial purposes, sell or license the code, or use it on behalf of a company or organization without written permission.
