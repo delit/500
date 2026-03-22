@@ -42,6 +42,8 @@
   let hintRevealAlreadyPlayed = false;
   /** Completed normal draws this run; intro stagger only while this is 0 (after startGame). */
   let completedDrawCount = 0;
+  /** Values already chosen as the real draw this run — no duplicate draws within one run (solo & two-player). */
+  let usedRollNumbersThisRun = new Set();
   /** @type {ReturnType<typeof setTimeout> | null} */
   let rollEarlyHintTimerId = null;
   /** @type {ReturnType<typeof setTimeout> | null} */
@@ -52,6 +54,10 @@
   let gameStartMs = 0;
   /** @type {ReturnType<typeof setTimeout> | null} */
   let rollLossPulseClearTimer = null;
+  /** Coarse pointer: game-over haptic already fired on pointerdown (Android activation). */
+  let gameOverHapticPlayedThisTap = false;
+  /** Timer-based loss (unwinnable-draw): vibrate on first tap on post–game-over actions. */
+  let pendingGameOverVibration = false;
 
   const $ = (sel, el = document) => el.querySelector(sel);
 
@@ -317,7 +323,26 @@
   }
 
   function hapticGameOver() {
-    haptic([110, 45, 130]);
+    haptic([500, 100, 500]);
+  }
+
+  /** @param {string} reason */
+  function playGameOverHaptic(reason) {
+    if (gameOverHapticPlayedThisTap) {
+      gameOverHapticPlayedThisTap = false;
+      return;
+    }
+    if (reason === "unwinnable-draw") {
+      pendingGameOverVibration = true;
+      return;
+    }
+    hapticGameOver();
+  }
+
+  function tryConsumePendingGameOverHaptic() {
+    if (!pendingGameOverVibration) return;
+    pendingGameOverVibration = false;
+    hapticGameOver();
   }
 
   function defaultStats() {
@@ -964,7 +989,7 @@
     const hooks = window.OneTo500Hooks;
     if (hooks && typeof hooks.handleRunEnd === "function") {
       if (hooks.handleRunEnd({ outcome: "loss", reason, score, elapsedMs })) {
-        hapticGameOver();
+        playGameOverHaptic(reason);
         playGameOverSound();
         renderSlots();
         triggerRollLossPulse();
@@ -986,7 +1011,7 @@
       goMessage.setAttribute("aria-hidden", hide ? "true" : "false");
     }
     showPostGameoverBar();
-    hapticGameOver();
+    playGameOverHaptic(reason);
     playGameOverSound();
     renderSlots();
     triggerRollLossPulse();
@@ -1095,6 +1120,33 @@
     }
   }
 
+  /** Android Chrome: vibrate on pointerdown so transient activation applies (click is too late). */
+  function onSlotsContainerPointerDown(e) {
+    if (!isCoarsePointer()) return;
+    if (!isVibrationSettingOn() || !canVibrate()) return;
+    const btn = e.target.closest("[data-slot-index]");
+    if (!btn || btn.disabled) return;
+    const index = parseInt(btn.dataset.slotIndex, 10);
+    if (isGameOverBoard || isRolling || currentNumber == null) return;
+    if (locked[index] != null) return;
+    if (previewIndex !== index) {
+      gameOverHapticPlayedThisTap = false;
+      return;
+    }
+    const v = currentNumber;
+    if (!validatePlacement(index, v)) {
+      hapticGameOver();
+      gameOverHapticPlayedThisTap = true;
+      return;
+    }
+    const nextLocked = locked.slice();
+    nextLocked[index] = v;
+    if (!greedyRemainingFeasible(nextLocked)) {
+      hapticGameOver();
+      gameOverHapticPlayedThisTap = true;
+    }
+  }
+
   function scheduleRoll() {
     if (rollSettleTimerId != null) {
       clearTimeout(rollSettleTimerId);
@@ -1108,7 +1160,11 @@
     hintRevealAlreadyPlayed = false;
     unlockAudioForRoll();
     isRolling = true;
-    const finalNum = randomInt(MIN_N, MAX_N);
+    let finalNum;
+    do {
+      finalNum = randomInt(MIN_N, MAX_N);
+    } while (usedRollNumbersThisRun.has(finalNum));
+    usedRollNumbersThisRun.add(finalNum);
     renderSlots();
 
     const strip = rollStrip;
@@ -1203,6 +1259,7 @@
       bumpStatsRunStarted();
     }
     completedDrawCount = 0;
+    usedRollNumbersThisRun = new Set();
     isGameOverBoard = false;
     locked = Array(SLOT_COUNT).fill(null);
     currentNumber = null;
@@ -1220,6 +1277,8 @@
       rollLossPulseClearTimer = null;
     }
     hidePostGameoverBar();
+    pendingGameOverVibration = false;
+    gameOverHapticPlayedThisTap = false;
     const rollDrawLabel = $("#roll-draw-label");
     if (rollDrawLabel && (!hooks || !hooks.skipRunStatsBump)) {
       rollDrawLabel.textContent = "Current draw";
@@ -1246,6 +1305,8 @@
     earlyHintRevealPhase = false;
     isGameOverBoard = false;
     hidePostGameoverBar();
+    pendingGameOverVibration = false;
+    gameOverHapticPlayedThisTap = false;
     hideOverlay(overlayWin, $("#overlay-win-panel"));
     if (gameLossFlash) gameLossFlash.classList.remove("is-playing");
     screenGame.classList.add("hidden");
@@ -1317,20 +1378,31 @@
       });
     }
 
+    slotsContainer.addEventListener("pointerdown", onSlotsContainerPointerDown, { passive: true });
     slotsContainer.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-slot-index]");
       if (!btn || btn.disabled) return;
       onSlotClick(parseInt(btn.dataset.slotIndex, 10));
     });
 
-    $("#btn-post-go-retry").addEventListener("click", () => {
-      hidePostGameoverBar();
-      startGame();
-    });
-    $("#btn-post-go-home").addEventListener("click", () => {
-      hidePostGameoverBar();
-      goHome();
-    });
+    const btnPostGoRetry = $("#btn-post-go-retry");
+    const btnPostGoHome = $("#btn-post-go-home");
+    if (btnPostGoRetry) {
+      btnPostGoRetry.addEventListener("pointerdown", tryConsumePendingGameOverHaptic);
+      btnPostGoRetry.addEventListener("click", tryConsumePendingGameOverHaptic);
+      btnPostGoRetry.addEventListener("click", () => {
+        hidePostGameoverBar();
+        startGame();
+      });
+    }
+    if (btnPostGoHome) {
+      btnPostGoHome.addEventListener("pointerdown", tryConsumePendingGameOverHaptic);
+      btnPostGoHome.addEventListener("click", tryConsumePendingGameOverHaptic);
+      btnPostGoHome.addEventListener("click", () => {
+        hidePostGameoverBar();
+        goHome();
+      });
+    }
     $("#btn-win-continue").addEventListener("click", () => {
       hideOverlay(overlayWin, $("#overlay-win-panel"));
       goHome();
