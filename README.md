@@ -60,3 +60,18 @@ Implementation notes:
 **Personal, non-commercial use only** — you may run and study the project for yourself; you may **not** use it for business/commercial purposes, sell or license the code, or use it on behalf of a company or organization without written permission.
 
 Full terms: [LICENSE](./LICENSE) (custom license — not MIT/OSI).
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center" valign="top" width="33%"><strong>01</strong><br /><br /><img src="./img/01.png" width="280" alt="Screenshot 01" /></td>
+    <td align="center" valign="top" width="33%"><strong>02</strong><br /><br /><img src="./img/02.png" width="280" alt="Screenshot 02" /></td>
+    <td align="center" valign="top" width="33%"><strong>03</strong><br /><br /><img src="./img/03.png" width="280" alt="Screenshot 03" /></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top"><strong>04</strong><br /><br /><img src="./img/04.png" width="280" alt="Screenshot 04" /></td>
+    <td align="center" valign="top"><strong>05</strong><br /><br /><img src="./img/05.png" width="280" alt="Screenshot 05" /></td>
+    <td align="center" valign="top"><strong>06</strong><br /><br /><img src="./img/06.png" width="280" alt="Screenshot 06" /></td>
+  </tr>
+</table>
