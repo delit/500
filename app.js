@@ -56,6 +56,10 @@
   let completedDrawCount = 0;
   /** Values already chosen as the real draw this run — no duplicate draws within one run (solo & two-player). */
   let usedRollNumbersThisRun = new Set();
+  /** Draw value for loss UI: invalid confirm or unwinnable-draw (cleared after gameOver reads it). */
+  let lastLossHintDraw = null;
+  /** After loss: where that draw belongs between locked rows (prev row bottom + next row top). */
+  let lossInsertionHint = null;
   /** @type {ReturnType<typeof setTimeout> | null} */
   let rollEarlyHintTimerId = null;
   /** @type {ReturnType<typeof setTimeout> | null} */
@@ -110,6 +114,7 @@
   const ignoreConfirmSwitchTrack = $("#ignore-confirm-switch-track");
   const ignoreConfirmSwitchKnob = $("#ignore-confirm-switch-knob");
   const postGameoverBar = $("#post-gameover-bar");
+  const postGameoverActions = $("#post-gameover-actions");
 
   function gameTimerDom() {
     return document.getElementById("game-timer");
@@ -131,10 +136,16 @@
 
   function hidePostGameoverBar() {
     if (postGameoverBar) postGameoverBar.classList.add("hidden");
+    if (postGameoverActions) postGameoverActions.classList.remove("hidden");
   }
 
   function showPostGameoverBar() {
     if (postGameoverBar) postGameoverBar.classList.remove("hidden");
+  }
+
+  /** @param {boolean} showButtons - false when Auto "Play Again": same bar, no action buttons */
+  function setPostGameoverActionsVisible(showButtons) {
+    if (postGameoverActions) postGameoverActions.classList.toggle("hidden", !showButtons);
   }
 
   function formatGameElapsed(ms) {
@@ -468,7 +479,9 @@
     const elPt = $("#stat-playtime");
     if (elRuns) elRuns.textContent = String(runs);
     if (elWins) elWins.textContent = String(wins);
-    if (elWr) elWr.textContent = runs > 0 ? `${Math.round((wins / runs) * 100)}%` : "—";
+    if (elWr) {
+      elWr.textContent = runs > 0 ? `${((wins / runs) * 100).toFixed(3)}%` : "—";
+    }
     if (elAvg) {
       elAvg.textContent = finished > 0 ? formatGameElapsed(Math.round(playTimeMs / finished)) : "—";
     }
@@ -808,6 +821,23 @@
     return locked.filter((x) => x != null).length;
   }
 
+  /** Where `n` belongs in ascending top→bottom order among locked values (for loss hint UI). */
+  function computeLossInsertionHint(board, n) {
+    let prevIdx = null;
+    for (let i = 0; i < SLOT_COUNT; i++) {
+      if (board[i] != null && board[i] < n) prevIdx = i;
+    }
+    let nextIdx = null;
+    for (let i = 0; i < SLOT_COUNT; i++) {
+      if (board[i] != null && board[i] > n) {
+        nextIdx = i;
+        break;
+      }
+    }
+    if (prevIdx == null && nextIdx == null) return null;
+    return { draw: n, prevIdx, nextIdx };
+  }
+
   function validatePlacement(index, value, board = locked) {
     let maxAbove = -Infinity;
     for (let i = 0; i < index; i++) {
@@ -857,13 +887,113 @@
     return false;
   }
 
+  /** SVG ring: multi-stop gradient stroke; dash 28+72=100 matches pathLength for gapless loop. */
+  function createLastChanceBorderSvg() {
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("class", "slot-last-chance-border-svg");
+    svg.setAttribute("viewBox", "0 0 400 80");
+    svg.setAttribute("preserveAspectRatio", "none");
+    svg.setAttribute("aria-hidden", "true");
+
+    const defs = document.createElementNS(svgNS, "defs");
+
+    function addLinearGradient(id, stops) {
+      const lg = document.createElementNS(svgNS, "linearGradient");
+      lg.setAttribute("id", id);
+      lg.setAttribute("gradientUnits", "userSpaceOnUse");
+      lg.setAttribute("x1", "0");
+      lg.setAttribute("y1", "0");
+      lg.setAttribute("x2", "400");
+      lg.setAttribute("y2", "80");
+      for (const s of stops) {
+        const stop = document.createElementNS(svgNS, "stop");
+        stop.setAttribute("offset", s.off);
+        stop.setAttribute("stop-color", s.c);
+        if (s.o != null) stop.setAttribute("stop-opacity", String(s.o));
+        lg.appendChild(stop);
+      }
+      defs.appendChild(lg);
+    }
+
+    addLinearGradient("slotLastBorderGrad", [
+      { off: "0%", c: "#1e3a8a", o: 0.22 },
+      { off: "14%", c: "#2563eb", o: 1 },
+      { off: "30%", c: "#3b82f6", o: 1 },
+      { off: "46%", c: "#93c5fd", o: 1 },
+      { off: "54%", c: "#e0f2fe", o: 0.98 },
+      { off: "66%", c: "#7dd3fc", o: 1 },
+      { off: "82%", c: "#60a5fa", o: 1 },
+      { off: "94%", c: "#3b82f6", o: 0.88 },
+      { off: "100%", c: "#1e40af", o: 0.62 },
+    ]);
+    addLinearGradient("slotLastBorderGradDark", [
+      { off: "0%", c: "#172554", o: 0.4 },
+      { off: "16%", c: "#2563eb", o: 1 },
+      { off: "34%", c: "#60a5fa", o: 1 },
+      { off: "48%", c: "#bae6fd", o: 0.95 },
+      { off: "58%", c: "#f0f9ff", o: 0.88 },
+      { off: "72%", c: "#38bdf8", o: 1 },
+      { off: "88%", c: "#93c5fd", o: 1 },
+      { off: "95%", c: "#60a5fa", o: 0.9 },
+      { off: "100%", c: "#1e3a8a", o: 0.68 },
+    ]);
+
+    svg.appendChild(defs);
+
+    const rect = document.createElementNS(svgNS, "rect");
+    rect.setAttribute("x", "2.25");
+    rect.setAttribute("y", "2.25");
+    rect.setAttribute("width", "395.5");
+    rect.setAttribute("height", "75.5");
+    rect.setAttribute("rx", "10");
+    rect.setAttribute("ry", "10");
+    rect.setAttribute("fill", "none");
+    rect.setAttribute("pathLength", "100");
+    const dark = document.documentElement.classList.contains("dark");
+    rect.setAttribute("stroke", dark ? "url(#slotLastBorderGradDark)" : "url(#slotLastBorderGrad)");
+    rect.setAttribute("stroke-width", "2.35");
+    rect.setAttribute("vector-effect", "non-scaling-stroke");
+    rect.setAttribute("stroke-linecap", "butt");
+    rect.setAttribute("stroke-linejoin", "round");
+    /* 28 + 72 = 100: one full normalized perimeter per 0→-100 offset → seamless infinite loop */
+    rect.setAttribute("stroke-dasharray", "28 72");
+    rect.setAttribute("stroke-dashoffset", "0");
+    rect.setAttribute("class", "slot-last-chance-border-rect");
+    svg.appendChild(rect);
+    return svg;
+  }
+
   function renderSlots() {
     slotsContainer.innerHTML = "";
     const coarsePointer = isCoarsePointer();
     let emptyHintStagger = 0;
+    const onlyEmptyIdx =
+      !isGameOverBoard && filledCount() === SLOT_COUNT - 1
+        ? locked.findIndex((x) => x == null)
+        : -1;
+    /** After roll settles: 9 locked + current draw is placeable (same gate as scheduleRoll / no unwinnable-draw). */
+    const lastSlotBorderActive =
+      onlyEmptyIdx >= 0 &&
+      currentNumber != null &&
+      !isRolling &&
+      canPlaceCurrentSomewhere(locked, currentNumber);
     for (let i = 0; i < SLOT_COUNT; i++) {
       const row = document.createElement("div");
-      row.className = `min-h-0 flex items-stretch${isGameOverBoard ? " slot-row-go-pulse" : ""}`;
+      const lastChanceGlow = lastSlotBorderActive && onlyEmptyIdx === i;
+      let lossHintClass = "";
+      if (isGameOverBoard && lossInsertionHint) {
+        const hintBottomRow =
+          lossInsertionHint.prevIdx ??
+          (lossInsertionHint.nextIdx != null && lossInsertionHint.nextIdx > 0
+            ? lossInsertionHint.nextIdx - 1
+            : null);
+        if (hintBottomRow === i) lossHintClass += " slot-loss-hint-row slot-loss-hint--bottom";
+      }
+      row.className =
+        `min-h-0 flex items-stretch${isGameOverBoard ? " slot-row-go-pulse" : ""}` +
+        (lastChanceGlow ? " slot-row-last-chance" : "") +
+        lossHintClass;
       if (isGameOverBoard) row.style.setProperty("--slot-go-delay", `${i * 0.068}s`);
       const v = locked[i];
       const isPreview = previewIndex === i && currentNumber != null;
@@ -919,6 +1049,10 @@
             <span>Confirm</span>
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
           </div>`;
+        if (lastChanceGlow) {
+          row.appendChild(createLastChanceBorderSvg());
+          btn.classList.add("relative", "z-[1]");
+        }
         row.appendChild(btn);
       } else {
         const btn = document.createElement("button");
@@ -963,6 +1097,10 @@
             <div class="h-8 w-px bg-slate-300 dark:bg-[#44474c]/25 shrink-0"></div>
             ${hintHtml}
           </div>`;
+        if (lastChanceGlow) {
+          row.appendChild(createLastChanceBorderSvg());
+          btn.classList.add("relative", "z-[1]");
+        }
         row.appendChild(btn);
       }
       slotsContainer.appendChild(row);
@@ -1006,6 +1144,7 @@
     const v = currentNumber;
 
     if (!validatePlacement(i, v)) {
+      lastLossHintDraw = v;
       gameOver("invalid");
       return;
     }
@@ -1086,6 +1225,12 @@
     hidePostGameoverBar();
     const elapsedMs = gameStartMs ? Date.now() - gameStartMs : 0;
     freezeGameTimer();
+    let hintNum = null;
+    if (reason === "invalid" || reason === "unwinnable-draw") {
+      hintNum = lastLossHintDraw;
+    }
+    lastLossHintDraw = null;
+    lossInsertionHint = hintNum != null ? computeLossInsertionHint(locked, hintNum) : null;
     isGameOverBoard = true;
     currentNumber = null;
     previewIndex = null;
@@ -1104,16 +1249,17 @@
       if (score > best) setHighScore(score);
       else refreshHighScoreUI();
       if (goScore) goScore.textContent = String(score);
+      const goMsgText = GO_MSG[reason] ?? "";
       if (goMessage) {
-        const text = GO_MSG[reason] ?? "";
-        goMessage.textContent = text;
-        const hide = !text.trim();
+        goMessage.textContent = goMsgText;
+        const hide = !goMsgText.trim();
         goMessage.classList.toggle("hidden", hide);
         goMessage.setAttribute("aria-hidden", hide ? "true" : "false");
       }
-      showPostGameoverBar();
       if (isAutoPlayAgainOn()) {
         clearAutoPlayAgainAfterLossTimer();
+        showPostGameoverBar();
+        setPostGameoverActionsVisible(false);
         autoPlayAgainAfterLossTimerId = window.setTimeout(() => {
           autoPlayAgainAfterLossTimerId = null;
           if (!isGameOverBoard) return;
@@ -1121,11 +1267,15 @@
           if (!g || g.classList.contains("hidden")) return;
           startGame();
         }, AUTO_PLAY_AGAIN_DELAY_MS);
+      } else {
+        showPostGameoverBar();
+        setPostGameoverActionsVisible(true);
       }
     }
     playGameOverSound();
     renderSlots();
     triggerRollLossPulse();
+    triggerGameLossBackgroundPulse();
     setRollDrawLabelGameOver();
   }
 
@@ -1311,6 +1461,7 @@
         currentNumber = finalNum;
         renderSlots();
         beep(380, 0.04);
+        lastLossHintDraw = finalNum;
         gameOver("unwinnable-draw");
         return;
       }
@@ -1347,6 +1498,8 @@
     }
     completedDrawCount = 0;
     usedRollNumbersThisRun = new Set();
+    lossInsertionHint = null;
+    lastLossHintDraw = null;
     isGameOverBoard = false;
     locked = Array(SLOT_COUNT).fill(null);
     currentNumber = null;

@@ -8,6 +8,10 @@
 
 [Play on GitHub Pages](https://delit.github.io/500/) · [Repository](https://github.com/delit/500)
 
+<br />
+
+<img src="./img/07.gif" width="360" alt="Short gameplay preview of the 1 to 500 slot roll and placing a number" />
+
 </div>
 
 ---
