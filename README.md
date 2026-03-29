@@ -67,14 +67,16 @@ Full terms: [LICENSE](./LICENSE) (custom license — not MIT/OSI).
 <table border="0" cellspacing="0" cellpadding="12" bgcolor="#f1f5f9">
   <tbody>
     <tr bgcolor="#f1f5f9">
-      <td align="center" valign="top" width="33%"><img src="./img/01.png" width="280" alt="Screenshot 01" /></td>
-      <td align="center" valign="top" width="33%"><img src="./img/02.png" width="280" alt="Screenshot 02" /></td>
-      <td align="center" valign="top" width="33%"><img src="./img/03.png" width="280" alt="Screenshot 03" /></td>
+      <td align="center" valign="top" width="25%"><img src="./img/01.png" width="210" alt="Screenshot 01" /></td>
+      <td align="center" valign="top" width="25%"><img src="./img/02.png" width="210" alt="Screenshot 02" /></td>
+      <td align="center" valign="top" width="25%"><img src="./img/03.png" width="210" alt="Screenshot 03" /></td>
+      <td align="center" valign="top" width="25%"><img src="./img/03-.png" width="210" alt="Screenshot 03b" /></td>
     </tr>
     <tr bgcolor="#f1f5f9">
-      <td align="center" valign="top"><img src="./img/04.png" width="280" alt="Screenshot 04" /></td>
-      <td align="center" valign="top"><img src="./img/05.png" width="280" alt="Screenshot 05" /></td>
-      <td align="center" valign="top"><img src="./img/06.png" width="280" alt="Screenshot 06" /></td>
+      <td align="center" valign="top"><img src="./img/04.png" width="210" alt="Screenshot 04" /></td>
+      <td align="center" valign="top"><img src="./img/05.png" width="210" alt="Screenshot 05" /></td>
+      <td align="center" valign="top"><img src="./img/05-.png" width="210" alt="Screenshot 05b" /></td>
+      <td align="center" valign="top"><img src="./img/06.png" width="210" alt="Screenshot 06" /></td>
     </tr>
   </tbody>
 </table>
