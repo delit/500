@@ -1,0 +1,16 @@
+# The 1 to 500 Game
+
+> Free browser puzzle: ten random integers from 1-500, placed in strict ascending order in ten slots. One invalid confirm ends the run. Installable PWA; works offline.
+
+## Summary
+- **What:** Single-player ordering puzzle (numbers 1-500, 10 rounds per run).
+- **How:** Preview a draw in an empty slot, then confirm to lock. Order must stay strictly increasing top to bottom.
+- **Win:** All ten slots filled validly. **Loss:** Invalid confirm or unwinnable draw.
+- **Tech:** Static site + JavaScript; Progressive Web App.
+
+## Primary URL
+https://delit.github.io/500/
+
+## Optional
+- High score / stats are stored locally (device only).
+- Settings include sound, auto play again, and optional one-tap lock (ignore confirm).

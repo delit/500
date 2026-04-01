@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://delit.github.io/500/sitemap.xml

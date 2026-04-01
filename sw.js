@@ -1,4 +1,4 @@
-const CACHE_NAME = "1to500-v91";
+const CACHE_NAME = "1to500-v105";
 const CORE = [
   "./",
   "./index.html",
@@ -6,6 +6,7 @@ const CORE = [
   "./modes/twoplayer.js",
   "./manifest.json",
   "./icon.svg",
+  "./og-image.png",
   "./googled9cd8fd26ac520c3.html"
 ];
 const OPTIONAL = [

@@ -38,6 +38,8 @@
   const LS_STATS = "1to500_stats";
   /** Top runs in localStorage: JSON array { score, timeMs, at }[], max 10 (best score, then fastest time). */
   const LS_LEADERBOARD = "1to500_leaderboard_top10";
+  /** Set to "1" after user dismisses the one-time “faster play” tip (10th finished run). */
+  const LS_SPEED_TIP_SHOWN = "1to500_speedTipShown";
 
   /** @type {number[]} */
   let locked = Array(SLOT_COUNT).fill(null);
@@ -95,6 +97,10 @@
   const overlayWin = $("#overlay-win");
   const overlayRestartConfirm = $("#overlay-restart-confirm");
   const overlayRestartPanel = $("#overlay-restart-panel");
+  const overlayResetStatsConfirm = $("#overlay-reset-stats-confirm");
+  const overlayResetStatsPanel = $("#overlay-reset-stats-panel");
+  const overlaySpeedTip = $("#overlay-speed-tip");
+  const overlaySpeedTipPanel = $("#overlay-speed-tip-panel");
   const goScore = $("#go-score");
   const goMessage = $("#go-message");
   const metaTheme = $("#meta-theme");
@@ -115,6 +121,7 @@
   const ignoreConfirmSwitchKnob = $("#ignore-confirm-switch-knob");
   const postGameoverBar = $("#post-gameover-bar");
   const postGameoverActions = $("#post-gameover-actions");
+  const gameFooter = $("#game-footer");
 
   function gameTimerDom() {
     return document.getElementById("game-timer");
@@ -125,6 +132,10 @@
     if (document.querySelector(".modal-backdrop.is-open")) return true;
     const ro = document.getElementById("overlay-restart-confirm");
     if (ro && !ro.classList.contains("hidden")) return true;
+    const rs = document.getElementById("overlay-reset-stats-confirm");
+    if (rs && !rs.classList.contains("hidden")) return true;
+    const sp = document.getElementById("overlay-speed-tip");
+    if (sp && !sp.classList.contains("hidden")) return true;
     const ow = document.getElementById("overlay-win");
     if (ow && !ow.classList.contains("hidden")) return true;
     const tpPass = document.getElementById("tp-pass-overlay");
@@ -137,10 +148,12 @@
   function hidePostGameoverBar() {
     if (postGameoverBar) postGameoverBar.classList.add("hidden");
     if (postGameoverActions) postGameoverActions.classList.remove("hidden");
+    if (gameFooter) gameFooter.classList.remove("game-footer--below-gameover");
   }
 
   function showPostGameoverBar() {
     if (postGameoverBar) postGameoverBar.classList.remove("hidden");
+    if (gameFooter) gameFooter.classList.add("game-footer--below-gameover");
   }
 
   /** @param {boolean} showButtons - false when Auto "Play Again": same bar, no action buttons */
@@ -153,6 +166,20 @@
     const m = Math.floor(sec / 60);
     const s = sec % 60;
     return `${m}:${String(s).padStart(2, "0")}`;
+  }
+
+  /** Statistics modal: h / m / s with abbreviations; omit hours when 0, omit minutes/seconds when 0 (except sub-minute uses seconds only). */
+  function formatStatsDuration(ms) {
+    const sec = Math.max(0, Math.floor(ms / 1000));
+    if (sec === 0) return "0s";
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    const parts = [];
+    if (h > 0) parts.push(`${h}h`);
+    if (m > 0) parts.push(`${m}m`);
+    if (s > 0) parts.push(`${s}s`);
+    return parts.length ? parts.join(" ") : "0s";
   }
 
   function tickGameTimer() {
@@ -402,6 +429,30 @@
       }
       autoPlayAgainSwitchKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
     }
+    const stState = $("#speed-tip-auto-state");
+    const stBtn = $("#btn-speed-tip-toggle-auto");
+    const stTrack = $("#speed-tip-auto-switch-track");
+    const stKnob = $("#speed-tip-auto-switch-knob");
+    if (stTrack && stKnob) {
+      stTrack.classList.remove(
+        "bg-slate-400",
+        "dark:bg-primary/28",
+        "bg-gradient-to-r",
+        "from-[#a6c9f8]",
+        "to-[#6285b0]",
+        "shadow-inner",
+        "shadow-md",
+        "shadow-sky-400/20"
+      );
+      if (on) {
+        stTrack.classList.add("bg-gradient-to-r", "from-[#a6c9f8]", "to-[#6285b0]", "shadow-md", "shadow-sky-400/20");
+      } else {
+        stTrack.classList.add("bg-slate-400", "dark:bg-primary/28", "shadow-inner");
+      }
+      stKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
+    }
+    if (stState) stState.textContent = on ? "On" : "Off";
+    if (stBtn) stBtn.setAttribute("aria-checked", on ? "true" : "false");
   }
 
   function setIgnoreConfirmLabel() {
@@ -427,6 +478,30 @@
       }
       ignoreConfirmSwitchKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
     }
+    const stState = $("#speed-tip-ignore-state");
+    const stBtn = $("#btn-speed-tip-toggle-ignore");
+    const stTrack = $("#speed-tip-ignore-switch-track");
+    const stKnob = $("#speed-tip-ignore-switch-knob");
+    if (stTrack && stKnob) {
+      stTrack.classList.remove(
+        "bg-slate-400",
+        "dark:bg-primary/28",
+        "bg-gradient-to-r",
+        "from-[#a6c9f8]",
+        "to-[#6285b0]",
+        "shadow-inner",
+        "shadow-md",
+        "shadow-sky-400/20"
+      );
+      if (on) {
+        stTrack.classList.add("bg-gradient-to-r", "from-[#a6c9f8]", "to-[#6285b0]", "shadow-md", "shadow-sky-400/20");
+      } else {
+        stTrack.classList.add("bg-slate-400", "dark:bg-primary/28", "shadow-inner");
+      }
+      stKnob.style.transform = on ? "translateX(1.25rem)" : "translateX(0)";
+    }
+    if (stState) stState.textContent = on ? "On" : "Off";
+    if (stBtn) stBtn.setAttribute("aria-checked", on ? "true" : "false");
   }
 
   function defaultStats() {
@@ -451,17 +526,51 @@
     } catch (_) {}
   }
 
+  /** Finished runs (wins + losses) from stats. */
+  function statsFinishedCount() {
+    const s = loadStats();
+    return (s.wins || 0) + (s.losses || 0);
+  }
+
+  /** One-time tip after exactly 10 finished games; skipped if both speed settings already on. */
+  function shouldOfferSpeedTip() {
+    if (localStorage.getItem(LS_SPEED_TIP_SHOWN) === "1") return false;
+    if (isAutoPlayAgainOn() && isIgnoreConfirmOn()) return false;
+    return statsFinishedCount() === 10;
+  }
+
+  function openSpeedTipOverlay() {
+    if (!overlaySpeedTip || !overlaySpeedTipPanel) return;
+    if (!overlaySpeedTip.classList.contains("hidden")) return;
+    setAutoPlayAgainLabel();
+    setIgnoreConfirmLabel();
+    showOverlay(overlaySpeedTip, overlaySpeedTipPanel);
+  }
+
+  function dismissSpeedTipOverlay() {
+    if (!overlaySpeedTip || !overlaySpeedTipPanel) return;
+    try {
+      localStorage.setItem(LS_SPEED_TIP_SHOWN, "1");
+    } catch (_) {}
+    hideOverlay(overlaySpeedTip, overlaySpeedTipPanel);
+  }
+
   function bumpStatsRunStarted() {
     const s = loadStats();
     s.runs = (s.runs || 0) + 1;
     saveStats(s);
   }
 
-  function recordStatsRunEnd(won, elapsedMs) {
+  function recordStatsRunEnd(won, elapsedMs, finalScore) {
     const s = loadStats();
     if (won) s.wins = (s.wins || 0) + 1;
     else s.losses = (s.losses || 0) + 1;
     s.playTimeMs = (s.playTimeMs || 0) + Math.max(0, Math.round(elapsedMs || 0));
+    const sc = Math.max(0, Math.min(SLOT_COUNT, Math.round(Number(finalScore))));
+    s.scoreRunsRecorded = (s.scoreRunsRecorded || 0) + 1;
+    s.scoreSumFinished = (s.scoreSumFinished || 0) + sc;
+    if (sc === 9) s.countScore9 = (s.countScore9 || 0) + 1;
+    if (sc === 1) s.countScore1 = (s.countScore1 || 0) + 1;
     saveStats(s);
   }
 
@@ -475,6 +584,9 @@
     const elRuns = $("#stat-runs");
     const elWins = $("#stat-wins");
     const elWr = $("#stat-winrate");
+    const elAvgScore = $("#stat-avgscore");
+    const elCount9 = $("#stat-count9");
+    const elCount1 = $("#stat-count1");
     const elAvg = $("#stat-avgtime");
     const elPt = $("#stat-playtime");
     if (elRuns) elRuns.textContent = String(runs);
@@ -482,10 +594,22 @@
     if (elWr) {
       elWr.textContent = runs > 0 ? `${((wins / runs) * 100).toFixed(3)}%` : "—";
     }
-    if (elAvg) {
-      elAvg.textContent = finished > 0 ? formatGameElapsed(Math.round(playTimeMs / finished)) : "—";
+    const nScored = s.scoreRunsRecorded || 0;
+    const sumScores = s.scoreSumFinished;
+    if (elAvgScore) {
+      if (typeof sumScores === "number" && nScored > 0) {
+        elAvgScore.textContent = `${(sumScores / nScored).toFixed(1)}/10`;
+      } else {
+        elAvgScore.textContent = "—";
+      }
     }
-    if (elPt) elPt.textContent = formatGameElapsed(playTimeMs);
+    if (elCount9) elCount9.textContent = String(s.countScore9 || 0);
+    if (elCount1) elCount1.textContent = String(s.countScore1 || 0);
+    if (elAvg) {
+      elAvg.textContent =
+        finished > 0 ? formatStatsDuration(Math.round(playTimeMs / finished)) : "—";
+    }
+    if (elPt) elPt.textContent = formatStatsDuration(playTimeMs);
   }
 
   /** @returns {Array<{ score: number; timeMs: number; at: number }>} */
@@ -1170,8 +1294,7 @@
   const GO_MSG = {
     invalid: "",
     "unwinnable-draw": "",
-    "unwinnable-board":
-      "The open slots no longer have enough room in 1–500 to stay strictly ascending.",
+    "unwinnable-board": "",
   };
 
   function triggerRollLossPulse() {
@@ -1241,8 +1364,9 @@
     if (hooks && typeof hooks.handleRunEnd === "function") {
       lossHandledByHook = hooks.handleRunEnd({ outcome: "loss", reason, score, elapsedMs });
     }
+    let offerSpeedTipAfterLoss = false;
     if (!lossHandledByHook) {
-      recordStatsRunEnd(false, elapsedMs);
+      recordStatsRunEnd(false, elapsedMs, score);
       recordLeaderboardRun(score, elapsedMs);
       recordBestTimeForScore(score, elapsedMs);
       const best = getHighScore();
@@ -1256,7 +1380,8 @@
         goMessage.classList.toggle("hidden", hide);
         goMessage.setAttribute("aria-hidden", hide ? "true" : "false");
       }
-      if (isAutoPlayAgainOn()) {
+      offerSpeedTipAfterLoss = shouldOfferSpeedTip();
+      if (isAutoPlayAgainOn() && !offerSpeedTipAfterLoss) {
         clearAutoPlayAgainAfterLossTimer();
         showPostGameoverBar();
         setPostGameoverActionsVisible(false);
@@ -1277,6 +1402,9 @@
     triggerRollLossPulse();
     triggerGameLossBackgroundPulse();
     setRollDrawLabelGameOver();
+    if (offerSpeedTipAfterLoss) {
+      requestAnimationFrame(() => openSpeedTipOverlay());
+    }
   }
 
   function win() {
@@ -1291,7 +1419,7 @@
       }
     }
     isGameOverBoard = false;
-    recordStatsRunEnd(true, elapsedMs);
+    recordStatsRunEnd(true, elapsedMs, SLOT_COUNT);
     recordLeaderboardRun(SLOT_COUNT, elapsedMs);
     recordBestTimeForScore(SLOT_COUNT, elapsedMs);
     setHighScore(10);
@@ -1405,7 +1533,19 @@
     const strip = rollStrip;
     const pool = [];
     const decoys = 22;
-    for (let k = 0; k < decoys; k++) pool.push(randomInt(MIN_N, MAX_N));
+    /* Decoys must not repeat any value already used as a real draw this run (incl. this
+       round’s finalNum), so the strip never shows the same integer twice before settle. */
+    const stripTaken = new Set(usedRollNumbersThisRun);
+    for (let k = 0; k < decoys; k++) {
+      let d;
+      let guard = 0;
+      do {
+        d = randomInt(MIN_N, MAX_N);
+        guard++;
+      } while (stripTaken.has(d) && guard < 6000);
+      stripTaken.add(d);
+      pool.push(d);
+    }
     pool.push(finalNum);
 
     strip.innerHTML = "";
@@ -1561,6 +1701,9 @@
     previewIndex = null;
     resetGameTimerDisplay();
     refreshHighScoreUI();
+    if (shouldOfferSpeedTip()) {
+      requestAnimationFrame(() => openSpeedTipOverlay());
+    }
   }
 
   function openModal(id) {
@@ -1676,6 +1819,15 @@
       });
     }
 
+    const btnSpeedTipAuto = $("#btn-speed-tip-toggle-auto");
+    if (btnSpeedTipAuto) {
+      btnSpeedTipAuto.addEventListener("click", () => {
+        const nextOn = !isAutoPlayAgainOn();
+        localStorage.setItem(LS_AUTO_PLAY_AGAIN, nextOn ? "on" : "off");
+        setAutoPlayAgainLabel();
+      });
+    }
+
     if (btnToggleIgnoreConfirm) {
       btnToggleIgnoreConfirm.addEventListener("click", () => {
         const nextOn = !isIgnoreConfirmOn();
@@ -1685,13 +1837,50 @@
       });
     }
 
+    const btnSpeedTipIgnore = $("#btn-speed-tip-toggle-ignore");
+    if (btnSpeedTipIgnore) {
+      btnSpeedTipIgnore.addEventListener("click", () => {
+        const nextOn = !isIgnoreConfirmOn();
+        localStorage.setItem(LS_IGNORE_CONFIRM, nextOn ? "on" : "off");
+        setIgnoreConfirmLabel();
+        renderSlots();
+      });
+    }
+
+    const btnSpeedTipDismiss = $("#btn-speed-tip-dismiss");
+    if (btnSpeedTipDismiss) {
+      btnSpeedTipDismiss.addEventListener("click", () => {
+        dismissSpeedTipOverlay();
+      });
+    }
+    if (overlaySpeedTip) {
+      overlaySpeedTip.addEventListener("click", (e) => {
+        if (e.target === overlaySpeedTip) dismissSpeedTipOverlay();
+      });
+    }
+
     $("#btn-reset-stats").addEventListener("click", () => {
+      showOverlay(overlayResetStatsConfirm, overlayResetStatsPanel);
+    });
+    $("#btn-reset-stats-confirm-yes").addEventListener("click", () => {
+      hideOverlay(overlayResetStatsConfirm, overlayResetStatsPanel);
       localStorage.removeItem(LS_STATS);
       localStorage.removeItem(LS_LEADERBOARD);
+      try {
+        localStorage.removeItem(LS_SPEED_TIP_SHOWN);
+      } catch (_) {}
       refreshStatsDisplay();
       refreshLeaderboardTable();
       beep(300, 0.05);
     });
+    $("#btn-reset-stats-confirm-cancel").addEventListener("click", () => {
+      hideOverlay(overlayResetStatsConfirm, overlayResetStatsPanel);
+    });
+    if (overlayResetStatsConfirm) {
+      overlayResetStatsConfirm.addEventListener("click", (e) => {
+        if (e.target === overlayResetStatsConfirm) hideOverlay(overlayResetStatsConfirm, overlayResetStatsPanel);
+      });
+    }
 
     $("#btn-open-statistics").addEventListener("click", () => {
       refreshStatsDisplay();

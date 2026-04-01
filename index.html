@@ -2,7 +2,10 @@
 <html lang="en" class="dark h-full">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
   <meta name="theme-color" content="#0f172a" id="meta-theme" />
   <meta name="color-scheme" content="dark light" />
   <meta name="format-detection" content="telephone=no" />
@@ -13,24 +16,27 @@
   <meta name="apple-mobile-web-app-title" content="1 to 500" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>1 to 500 Game — Free online number ordering puzzle</title>
+  <title>1 to 500 Game - Free number ordering puzzle</title>
   <meta name="description" content="Free browser puzzle: get 10 random numbers from 1–500. Place each in ascending order in 10 slots—one invalid move ends the run. Play offline as a PWA." />
   <meta name="keywords" content="1 to 500 game, number puzzle, ordering game, brain teaser, browser game, free online game, ascending order, PWA game, probability puzzle" />
-  <link rel="canonical" href="./index.html" />
-  <link rel="alternate" hreflang="en" href="./index.html" />
-  <link rel="alternate" hreflang="x-default" href="./index.html" />
-  <!-- When deployed, replace ./ below with your absolute site URL (https://…) for best social & AI previews -->
+  <link rel="canonical" href="https://delit.github.io/500/" />
+  <link rel="alternate" hreflang="en" href="https://delit.github.io/500/" />
+  <link rel="alternate" hreflang="x-default" href="https://delit.github.io/500/" />
+  <!-- Production base URL (GitHub Pages). If you fork or use another host, update delit.github.io/500 in head JSON-LD + meta, and in robots.txt, sitemap.xml, llms.txt. -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="The 1 to 500 Game" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="1 to 500 Game — Free online number ordering puzzle" />
   <meta property="og:description" content="Place 10 random draws from 1–500 in strict ascending order. One wrong confirm ends the run. Works offline as an installable web app." />
-  <meta property="og:url" content="./index.html" />
-  <meta property="og:image" content="./icon.svg" />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://delit.github.io/500/" />
+  <meta property="og:image" content="https://delit.github.io/500/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="The 1 to 500 Game — number ordering puzzle" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="1 to 500 Game — Free online number ordering puzzle" />
   <meta name="twitter:description" content="Place 10 random draws from 1–500 in strict ascending order. One wrong confirm ends the run." />
-  <meta name="twitter:image" content="./icon.svg" />
+  <meta name="twitter:image" content="https://delit.github.io/500/og-image.png" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="./icon.svg" />
@@ -40,23 +46,32 @@
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "./index.html#website",
+        "@id": "https://delit.github.io/500/#website",
         "name": "The 1 to 500 Game",
         "alternateName": ["1 to 500", "1–500 Game"],
         "description": "Free web puzzle: ten random integers from 1 to 500 must be locked into slots in strictly increasing order.",
         "inLanguage": "en",
-        "url": "./index.html"
+        "url": "https://delit.github.io/500/",
+        "publisher": {
+          "@type": "Person",
+          "name": "Adam Arvidsson"
+        }
       },
       {
         "@type": "WebPage",
-        "@id": "./index.html#webpage",
-        "url": "./index.html",
+        "@id": "https://delit.github.io/500/#webpage",
+        "url": "https://delit.github.io/500/",
         "name": "1 to 500 Game — Free online number ordering puzzle",
         "description": "Place 10 random numbers from 1–500 in ascending order in 10 slots. One invalid confirm ends the run. Installable PWA with offline play.",
         "inLanguage": "en",
-        "isPartOf": { "@id": "./index.html#website" },
-        "about": { "@id": "./index.html#game" },
-        "mainEntity": { "@id": "./index.html#game" },
+        "dateModified": "2026-03-29",
+        "primaryImageOfPage": {
+          "@type": "ImageObject",
+          "url": "https://delit.github.io/500/og-image.png"
+        },
+        "isPartOf": { "@id": "https://delit.github.io/500/#website" },
+        "about": { "@id": "https://delit.github.io/500/#game" },
+        "mainEntity": { "@id": "https://delit.github.io/500/#game" },
         "speakable": {
           "@type": "SpeakableSpecification",
           "cssSelector": ["#seo-lead", "#seo-how-summary"]
@@ -64,9 +79,11 @@
       },
       {
         "@type": "VideoGame",
-        "@id": "./index.html#game",
+        "@id": "https://delit.github.io/500/#game",
         "name": "The 1 to 500 Game",
         "alternateName": ["1 to 500", "1–500"],
+        "url": "https://delit.github.io/500/",
+        "image": "https://delit.github.io/500/og-image.png",
         "description": "Single-player browser puzzle. Each round reveals a random integer from 1 through 500. The player places or confirms each value into one of ten slots from top to bottom; locked values must stay strictly increasing. Filling all ten slots in valid order wins; an invalid confirmation ends the game.",
         "genre": ["Puzzle", "Brain teaser", "Numbers"],
         "playMode": "https://schema.org/SinglePlayer",
@@ -75,6 +92,29 @@
         "gamePlatform": ["Web browser", "Progressive Web App"],
         "operatingSystem": "Web browser",
         "inLanguage": "en",
+        "author": {
+          "@type": "Person",
+          "name": "Adam Arvidsson"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://delit.github.io/500/#softwareapplication",
+        "name": "The 1 to 500 Game",
+        "url": "https://delit.github.io/500/",
+        "image": "https://delit.github.io/500/og-image.png",
+        "description": "Browser-based number ordering puzzle: ten draws from 1–500, strict ascending slots, invalid confirm ends the run. Installable PWA with offline play.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Web browser",
+        "browserRequirements": "Requires JavaScript.",
+        "inLanguage": "en",
+        "isPartOf": { "@id": "https://delit.github.io/500/#website" },
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -84,7 +124,7 @@
       },
       {
         "@type": "FAQPage",
-        "@id": "./index.html#faq",
+        "@id": "https://delit.github.io/500/#faq",
         "mainEntity": [
           {
             "@type": "Question",
@@ -405,6 +445,47 @@
         0 0 0 2px rgba(255, 255, 255, 0.1),
         0 40px 80px -6px rgba(0, 0, 0, 0.92),
         0 18px 44px -4px rgba(0, 0, 0, 0.78);
+    }
+    /* Game over bar + footer share one surface: hide footer top rule while bar is visible */
+    #game-footer.game-footer--below-gameover {
+      border-top-color: transparent;
+    }
+    /* One-time faster-play tip: copy block */
+    .speed-tip-diagram {
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      background: rgba(241, 245, 249, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+    .dark .speed-tip-diagram {
+      background: rgba(30, 41, 59, 0.5);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    .speed-tip-diagram__copy {
+      margin: 0;
+      text-align: center;
+      line-height: 1.45;
+      color: rgb(71 85 105);
+    }
+    .dark .speed-tip-diagram__copy {
+      color: rgb(203 213 225);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .speed-tip-diagram__pulse {
+        animation: speed-tip-pulse 2.4s ease-in-out infinite;
+      }
+    }
+    @keyframes speed-tip-pulse {
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.88;
+        transform: scale(1.04);
+      }
     }
     /* Loss: “Game Over” — only letter-spacing animates (3s) */
     @keyframes roll-draw-label-game-over {
@@ -856,35 +937,67 @@
       transform: scaleX(0);
       transform-origin: center;
       opacity: 0;
-      animation: slot-loss-hint-sweep 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        transparent 10%,
-        rgba(37, 99, 235, 0.16) 20%,
-        rgba(59, 130, 246, 0.62) 40%,
-        rgba(96, 165, 250, 0.72) 50%,
-        rgba(59, 130, 246, 0.62) 60%,
-        rgba(37, 99, 235, 0.16) 80%,
-        transparent 90%,
-        transparent 100%
-      );
-      box-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
+      animation:
+        slot-loss-hint-sweep 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+        slot-loss-hint-glowpulse 4.2s ease-in-out 0.4s infinite;
+      background-image: linear-gradient(
+          90deg,
+          transparent 0%,
+          transparent 10%,
+          rgba(37, 99, 235, 0.16) 20%,
+          rgba(59, 130, 246, 0.58) 40%,
+          rgba(96, 165, 250, 0.62) 50%,
+          rgba(59, 130, 246, 0.58) 60%,
+          rgba(37, 99, 235, 0.16) 80%,
+          transparent 90%,
+          transparent 100%
+        ),
+        radial-gradient(
+          ellipse 42% 260% at 50% 50%,
+          rgba(96, 165, 250, 0.48) 0%,
+          rgba(59, 130, 246, 0.22) 40%,
+          transparent 72%
+        );
+      background-size: 100% 100%, 58% 100%;
+      background-position: center, center;
+      background-repeat: no-repeat;
+      /* Same edge falloff idea as gradient: nothing hard at left/right */
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+      mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+      -webkit-mask-size: 100% 100%;
+      mask-size: 100% 100%;
+      box-shadow: 0 0 9px rgba(59, 130, 246, 0.18);
     }
     .dark .slot-loss-hint--bottom::after {
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        transparent 10%,
-        rgba(30, 58, 138, 0.32) 20%,
-        rgba(37, 99, 235, 0.68) 40%,
-        rgba(59, 130, 246, 0.58) 50%,
-        rgba(37, 99, 235, 0.68) 60%,
-        rgba(30, 58, 138, 0.32) 80%,
-        transparent 90%,
-        transparent 100%
-      );
-      box-shadow: 0 0 10px rgba(37, 99, 235, 0.18);
+      background-image: linear-gradient(
+          90deg,
+          transparent 0%,
+          transparent 10%,
+          rgba(30, 58, 138, 0.32) 20%,
+          rgba(37, 99, 235, 0.62) 40%,
+          rgba(59, 130, 246, 0.52) 50%,
+          rgba(37, 99, 235, 0.62) 60%,
+          rgba(30, 58, 138, 0.32) 80%,
+          transparent 90%,
+          transparent 100%
+        ),
+        radial-gradient(
+          ellipse 42% 260% at 50% 50%,
+          rgba(59, 130, 246, 0.42) 0%,
+          rgba(37, 99, 235, 0.2) 42%,
+          transparent 74%
+        );
+      background-size: 100% 100%, 58% 100%;
+      background-position: center, center;
+      background-repeat: no-repeat;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+      mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+      -webkit-mask-size: 100% 100%;
+      mask-size: 100% 100%;
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.16);
+      animation:
+        slot-loss-hint-sweep 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+        slot-loss-hint-glowpulse-dark 4.2s ease-in-out 0.4s infinite;
     }
     @keyframes slot-loss-hint-sweep {
       from {
@@ -899,11 +1012,73 @@
         opacity: 1;
       }
     }
+    /* After sweep: center-weighted glow breathes outward (radial layer widens = fade L/R) */
+    @keyframes slot-loss-hint-glowpulse {
+      0%,
+      100% {
+        transform: scaleX(1);
+        opacity: 1;
+        filter: brightness(1);
+        box-shadow: 0 0 9px rgba(59, 130, 246, 0.2);
+        background-size: 100% 100%, 58% 100%;
+      }
+      50% {
+        transform: scaleX(1);
+        opacity: 0.78;
+        filter: brightness(1.16);
+        box-shadow: 0 0 16px rgba(59, 130, 246, 0.38), 0 0 28px rgba(96, 165, 250, 0.12);
+        background-size: 100% 100%, 138% 100%;
+      }
+    }
+    @keyframes slot-loss-hint-glowpulse-dark {
+      0%,
+      100% {
+        transform: scaleX(1);
+        opacity: 1;
+        filter: brightness(1);
+        box-shadow: 0 0 10px rgba(37, 99, 235, 0.18);
+        background-size: 100% 100%, 58% 100%;
+      }
+      50% {
+        transform: scaleX(1);
+        opacity: 0.8;
+        filter: brightness(1.14);
+        box-shadow: 0 0 17px rgba(59, 130, 246, 0.34), 0 0 30px rgba(56, 189, 248, 0.1);
+        background-size: 100% 100%, 138% 100%;
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       .slot-loss-hint--bottom::after {
         animation: none;
         transform: scaleX(1);
         opacity: 0.62;
+        background-image: linear-gradient(
+          90deg,
+          transparent 0%,
+          transparent 10%,
+          rgba(37, 99, 235, 0.16) 20%,
+          rgba(59, 130, 246, 0.58) 40%,
+          rgba(96, 165, 250, 0.62) 50%,
+          rgba(59, 130, 246, 0.58) 60%,
+          rgba(37, 99, 235, 0.16) 80%,
+          transparent 90%,
+          transparent 100%
+        );
+        background-size: 100% 100%;
+      }
+      .dark .slot-loss-hint--bottom::after {
+        background-image: linear-gradient(
+          90deg,
+          transparent 0%,
+          transparent 10%,
+          rgba(30, 58, 138, 0.32) 20%,
+          rgba(37, 99, 235, 0.62) 40%,
+          rgba(59, 130, 246, 0.52) 50%,
+          rgba(37, 99, 235, 0.62) 60%,
+          rgba(30, 58, 138, 0.32) 80%,
+          transparent 90%,
+          transparent 100%
+        );
       }
     }
     /* Last slot (9/10): gradient stroke, dash offset 0→-100 = one pathLength period → seamless loop (butt caps) */
@@ -1627,10 +1802,10 @@
       </div>
     </main>
 
-    <div id="post-gameover-bar" class="hidden relative z-[12] shrink-0 w-full max-w-lg mx-auto flex flex-col gap-2 max-sm:gap-3 rounded-t-2xl border border-b-0 border-slate-200 dark:border-white/10 bg-white dark:bg-surface-low max-sm:dark:bg-surface shadow-[0_-12px_40px_rgba(15,23,42,0.1)] dark:shadow-[0_-12px_40px_rgba(0,0,0,0.35)] px-4 pt-3 pb-2 max-sm:pt-4 max-sm:pb-3 [padding-left:max(1rem,env(safe-area-inset-left,0px))] [padding-right:max(1rem,env(safe-area-inset-right,0px))]" role="status" aria-live="polite">
+    <div id="post-gameover-bar" class="hidden relative z-[12] shrink-0 w-full max-w-lg mx-auto flex flex-col gap-2 max-sm:gap-3 rounded-t-2xl border-t border-x border-b-0 border-slate-200 dark:border-white/10 bg-white dark:bg-surface-low/85 max-sm:dark:bg-surface backdrop-blur-xl max-sm:dark:backdrop-blur-none shadow-[0_-12px_40px_rgba(15,23,42,0.1)] dark:shadow-[0_-12px_40px_rgba(0,0,0,0.35)] px-4 pt-3 pb-2 max-sm:pt-4 max-sm:pb-3 [padding-left:max(1rem,env(safe-area-inset-left,0px))] [padding-right:max(1rem,env(safe-area-inset-right,0px))]" role="status" aria-live="polite">
       <h3 class="font-headline text-center text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-on-surface leading-tight tracking-tight">Game Over</h3>
       <p id="go-message" class="text-center text-xs text-slate-600 dark:text-on-surface-muted leading-snug px-0.5 max-h-[4.25rem] overflow-y-auto hidden" aria-hidden="true"></p>
-      <p class="text-center text-sm text-slate-600 dark:text-on-surface-muted">Score this run: <span id="go-score" class="text-primary font-bold tabular-nums">0</span>/10</p>
+      <p class="text-center text-sm text-slate-600 dark:text-on-surface-muted">Score: <span id="go-score" class="text-primary font-bold tabular-nums">0</span>/10</p>
       <div id="post-gameover-actions" class="flex gap-2 pt-0.5">
         <button type="button" id="btn-post-go-home" class="flex-1 py-4 sm:py-2.5 min-h-[3rem] sm:min-h-0 rounded-xl text-slate-600 dark:text-on-surface-muted font-headline text-xs font-semibold uppercase tracking-wider border border-slate-300 dark:border-white/15 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:scale-[0.99]">Back to start</button>
         <button type="button" id="btn-post-go-retry" class="flex flex-1 items-center justify-center gap-2 py-4 sm:py-2.5 min-h-[3rem] sm:min-h-0 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-xs font-bold uppercase tracking-wider active:scale-[0.98] transition-transform">
@@ -1642,7 +1817,7 @@
       </div>
     </div>
 
-    <footer class="safe-pb-bottom relative z-[12] shrink-0 w-full flex justify-around items-center px-2 sm:px-6 py-2 bg-white dark:bg-surface-low/85 max-sm:dark:bg-surface backdrop-blur-xl max-sm:dark:backdrop-blur-none border-t border-slate-300 shadow-[0_-4px_24px_rgba(15,23,42,0.06)] dark:border-white/5 dark:shadow-none max-w-lg mx-auto w-full [padding-left:max(0.5rem,env(safe-area-inset-left,0px))] [padding-right:max(0.5rem,env(safe-area-inset-right,0px))]">
+    <footer id="game-footer" class="safe-pb-bottom relative z-[12] shrink-0 w-full flex justify-around items-center px-2 sm:px-6 py-2 bg-white dark:bg-surface-low/85 max-sm:dark:bg-surface backdrop-blur-xl max-sm:dark:backdrop-blur-none border-t border-slate-300 shadow-[0_-4px_24px_rgba(15,23,42,0.06)] dark:border-white/5 dark:shadow-none max-w-lg mx-auto w-full [padding-left:max(0.5rem,env(safe-area-inset-left,0px))] [padding-right:max(0.5rem,env(safe-area-inset-right,0px))]">
       <button type="button" id="btn-game-restart" class="p-2 rounded-lg text-slate-700 dark:text-[#6285b0] hover:text-primary transition-colors active:scale-95" aria-label="Restart game">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
       </button>
@@ -1709,6 +1884,116 @@
         </button>
         <button type="button" id="btn-restart-confirm-cancel" class="w-full py-3 rounded-xl border-2 border-slate-200 dark:border-white/15 text-slate-700 dark:text-on-surface font-headline text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-transform">Cancel</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Reset statistics confirmation (above statistics modal z-[56]) -->
+  <div id="overlay-reset-stats-confirm" class="fixed inset-0 z-[58] hidden flex items-end sm:items-center justify-center p-4 bg-slate-900/50 dark:bg-surface/88 backdrop-blur-sm opacity-0 transition-opacity duration-300" aria-hidden="true">
+    <div class="w-full max-w-md rounded-2xl bg-white dark:bg-surface p-6 modal-overlay-panel-shadow border border-slate-300 dark:border-0 transform scale-95 transition-transform duration-300" id="overlay-reset-stats-panel" role="dialog" aria-modal="true" aria-labelledby="reset-stats-confirm-title">
+      <div class="flex justify-center mb-4" aria-hidden="true">
+        <span class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+        </span>
+      </div>
+      <h3 id="reset-stats-confirm-title" class="font-headline text-lg font-bold text-slate-900 dark:text-on-surface text-center mb-2">Reset all statistics?</h3>
+      <p class="text-sm text-slate-600 dark:text-on-surface-muted text-center mb-6">This permanently removes saved stats and high scores on this device. You can’t undo this.</p>
+      <div class="flex flex-col gap-2">
+        <button type="button" id="btn-reset-stats-confirm-yes" class="w-full py-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-headline text-xs font-bold uppercase tracking-wider active:scale-[0.98] transition-transform dark:bg-amber-600 dark:hover:bg-amber-500">Reset</button>
+        <button type="button" id="btn-reset-stats-confirm-cancel" class="w-full py-3 rounded-xl border-2 border-slate-200 dark:border-white/15 text-slate-700 dark:text-on-surface font-headline text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-transform">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- One-time tip: faster play (after 10 finished runs) -->
+  <div
+    id="overlay-speed-tip"
+    class="fixed inset-0 z-[59] hidden flex items-end sm:items-center justify-center p-4 bg-slate-900/50 dark:bg-surface/88 backdrop-blur-sm opacity-0 transition-opacity duration-300"
+    aria-hidden="true"
+  >
+    <div
+      class="w-full max-w-md rounded-2xl bg-white dark:bg-surface p-5 sm:p-6 modal-overlay-panel-shadow border border-slate-300 dark:border-0 transform scale-95 transition-transform duration-300 max-h-[min(92dvh,44rem)] overflow-y-auto"
+      id="overlay-speed-tip-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="speed-tip-title"
+    >
+      <div class="flex justify-center mb-3" aria-hidden="true">
+        <span class="flex h-11 w-11 items-center justify-center rounded-full bg-sky-100 dark:bg-primary/20 text-sky-700 dark:text-primary speed-tip-diagram__pulse">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+          </svg>
+        </span>
+      </div>
+      <h3 id="speed-tip-title" class="font-headline text-lg sm:text-xl font-bold text-slate-900 dark:text-on-surface text-center mb-3">
+        Tip: Quicker Games
+      </h3>
+
+      <div class="speed-tip-diagram">
+        <p class="speed-tip-diagram__copy text-xs sm:text-[13px]">
+          Enable these to cut pauses and extra taps between draws — same rules, less waiting.
+        </p>
+      </div>
+
+      <div class="space-y-2.5 mb-4">
+        <button
+          type="button"
+          id="btn-speed-tip-toggle-auto"
+          role="switch"
+          aria-checked="false"
+          class="group flex w-full items-center justify-between gap-3 py-3 px-3.5 rounded-xl border border-slate-300 bg-slate-50 text-left shadow-sm transition-colors hover:bg-slate-100 active:scale-[0.99] dark:bg-surface-lowest/50 dark:border-white/10 dark:hover:bg-surface-low/60"
+        >
+          <span class="flex items-center gap-3 min-w-0 flex-1">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+            </span>
+            <span class="min-w-0 flex flex-col gap-0.5 text-left">
+              <span class="text-sm font-semibold text-slate-900 dark:text-on-surface">Auto “Play Again”</span>
+              <span class="text-[11px] leading-snug text-slate-500 dark:text-on-surface-muted">Starts a new run automatically after game over.</span>
+            </span>
+          </span>
+          <span class="flex items-center gap-2 shrink-0">
+            <span id="speed-tip-auto-state" class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface-muted w-8 text-right tabular-nums">Off</span>
+            <span id="speed-tip-auto-switch-track" class="relative h-8 w-[3.25rem] shrink-0 rounded-full p-1 transition-colors duration-200 bg-slate-400 dark:bg-primary/28 shadow-inner">
+              <span id="speed-tip-auto-switch-knob" class="block h-6 w-6 rounded-full bg-white shadow-md ring-1 ring-black/5 dark:ring-white/20 transition-transform duration-200 ease-out will-change-transform"></span>
+            </span>
+          </span>
+        </button>
+        <button
+          type="button"
+          id="btn-speed-tip-toggle-ignore"
+          role="switch"
+          aria-checked="false"
+          class="group flex w-full items-center justify-between gap-3 py-3 px-3.5 rounded-xl border border-slate-300 bg-slate-50 text-left shadow-sm transition-colors hover:bg-slate-100 active:scale-[0.99] dark:bg-surface-lowest/50 dark:border-white/10 dark:hover:bg-surface-low/60"
+        >
+          <span class="flex items-center gap-3 min-w-0 flex-1">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59" />
+              </svg>
+            </span>
+            <span class="min-w-0 flex flex-col gap-0.5 text-left">
+              <span class="text-sm font-semibold text-slate-900 dark:text-on-surface">Ignore Confirm button</span>
+              <span class="text-[11px] leading-snug text-slate-500 dark:text-on-surface-muted">Locks the number with one tap on a slot — no separate Confirm.</span>
+            </span>
+          </span>
+          <span class="flex items-center gap-2 shrink-0">
+            <span id="speed-tip-ignore-state" class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-on-surface-muted w-8 text-right tabular-nums">Off</span>
+            <span id="speed-tip-ignore-switch-track" class="relative h-8 w-[3.25rem] shrink-0 rounded-full p-1 transition-colors duration-200 bg-slate-400 dark:bg-primary/28 shadow-inner">
+              <span id="speed-tip-ignore-switch-knob" class="block h-6 w-6 rounded-full bg-white shadow-md ring-1 ring-black/5 dark:ring-white/20 transition-transform duration-200 ease-out will-change-transform"></span>
+            </span>
+          </span>
+        </button>
+      </div>
+
+      <button
+        type="button"
+        id="btn-speed-tip-dismiss"
+        class="w-full py-3.5 rounded-xl bg-gradient-to-br from-[#a6c9f8] to-[#6285b0] text-on-primary-fixed font-headline text-xs font-bold uppercase tracking-wider active:scale-[0.98] transition-transform"
+      >
+        Got it
+      </button>
     </div>
   </div>
 
@@ -1958,7 +2243,7 @@
     aria-hidden="true"
     aria-labelledby="statistics-title"
   >
-    <div class="modal-panel w-full max-w-md rounded-2xl bg-white dark:bg-surface modal-overlay-panel-shadow border border-slate-300 dark:border-0 max-h-[min(88dvh,28rem)] flex flex-col">
+    <div class="modal-panel w-full max-w-md rounded-2xl bg-white dark:bg-surface modal-overlay-panel-shadow border border-slate-300 dark:border-0 max-h-[min(94dvh,48rem)] flex flex-col overflow-hidden">
       <div class="flex justify-between items-center gap-3 px-5 pt-5 pb-3 shrink-0 border-b border-slate-200 dark:border-white/10">
         <div class="min-w-0 flex items-center gap-3">
           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
@@ -1976,19 +2261,43 @@
         </button>
       </div>
       <div class="px-5 py-4 flex-1 min-h-0 overflow-y-auto overscroll-y-contain space-y-4">
-        <div class="rounded-lg border border-slate-300 bg-white py-3.5 px-4 shadow-sm dark:border-white/10 dark:bg-surface-lowest/40 dark:shadow-none">
-          <dl class="grid grid-cols-[1fr_auto] gap-x-3 gap-y-2 text-sm font-semibold text-slate-900 dark:text-on-surface">
-            <dt class="text-slate-600 dark:text-on-surface-muted font-semibold">Runs played</dt>
-            <dd id="stat-runs" class="text-right tabular-nums">0</dd>
-            <dt class="text-slate-600 dark:text-on-surface-muted font-semibold">Wins</dt>
-            <dd id="stat-wins" class="text-right tabular-nums">0</dd>
-            <dt class="text-slate-600 dark:text-on-surface-muted font-semibold">Win rate</dt>
-            <dd id="stat-winrate" class="text-right tabular-nums">—</dd>
-            <dt class="text-slate-600 dark:text-on-surface-muted font-semibold">Avg. time per run</dt>
-            <dd id="stat-avgtime" class="text-right tabular-nums">—</dd>
-            <dt class="text-slate-600 dark:text-on-surface-muted font-semibold">Total time in runs</dt>
-            <dd id="stat-playtime" class="text-right tabular-nums">0:00</dd>
-          </dl>
+        <div class="overflow-hidden rounded-lg border border-slate-300 bg-white shadow-sm dark:border-white/10 dark:bg-surface-lowest/40 dark:shadow-none">
+          <table class="w-full text-sm text-left border-collapse">
+            <tbody class="text-slate-900 dark:text-on-surface">
+              <tr class="border-b border-slate-200/90 dark:border-white/[0.08] last:border-0">
+                <td class="py-3 pl-4 pr-2 text-slate-600 dark:text-on-surface-muted text-[13px]">Runs played</td>
+                <td id="stat-runs" class="py-3 pl-2 pr-4 text-right tabular-nums text-slate-600 dark:text-on-surface-muted text-[13px]">0</td>
+              </tr>
+              <tr class="border-b border-slate-200/90 dark:border-white/[0.08] last:border-0">
+                <td class="py-3 pl-4 pr-2 text-slate-600 dark:text-on-surface-muted text-[13px]">Wins</td>
+                <td id="stat-wins" class="py-3 pl-2 pr-4 text-right tabular-nums text-slate-600 dark:text-on-surface-muted text-[13px]">0</td>
+              </tr>
+              <tr class="border-b border-slate-200/90 dark:border-white/[0.08] last:border-0">
+                <td class="py-3 pl-4 pr-2 text-slate-600 dark:text-on-surface-muted text-[13px]">Win rate</td>
+                <td id="stat-winrate" class="py-3 pl-2 pr-4 text-right tabular-nums text-slate-600 dark:text-on-surface-muted text-[13px]">—</td>
+              </tr>
+              <tr class="border-b border-slate-200/90 dark:border-white/[0.08] last:border-0">
+                <td class="py-3 pl-4 pr-2 text-slate-600 dark:text-on-surface-muted text-[13px]">Avg. score per run</td>
+                <td id="stat-avgscore" class="py-3 pl-2 pr-4 text-right tabular-nums text-slate-600 dark:text-on-surface-muted text-[13px]">—</td>
+              </tr>
+              <tr class="border-b border-slate-200/90 dark:border-white/[0.08] last:border-0">
+                <td class="py-3 pl-4 pr-2 text-slate-600 dark:text-on-surface-muted text-[13px]">Avg. time per run</td>
+                <td id="stat-avgtime" class="py-3 pl-2 pr-4 text-right tabular-nums text-slate-600 dark:text-on-surface-muted text-[13px]">—</td>
+              </tr>
+              <tr class="border-b border-slate-200/90 dark:border-white/[0.08] last:border-0">
+                <td class="py-3 pl-4 pr-2 text-slate-600 dark:text-on-surface-muted text-[13px]">Failed at 9/10</td>
+                <td id="stat-count9" class="py-3 pl-2 pr-4 text-right tabular-nums text-slate-600 dark:text-on-surface-muted text-[13px]">0</td>
+              </tr>
+              <tr class="border-b border-slate-200/90 dark:border-white/[0.08] last:border-0">
+                <td class="py-3 pl-4 pr-2 text-slate-600 dark:text-on-surface-muted text-[13px]">Failed at 1/10</td>
+                <td id="stat-count1" class="py-3 pl-2 pr-4 text-right tabular-nums text-slate-600 dark:text-on-surface-muted text-[13px]">0</td>
+              </tr>
+              <tr class="border-b border-slate-200/90 dark:border-white/[0.08] last:border-0">
+                <td class="py-3 pl-4 pr-2 text-slate-600 dark:text-on-surface-muted text-[13px]">Total time</td>
+                <td id="stat-playtime" class="py-3 pl-2 pr-4 text-right tabular-nums text-slate-600 dark:text-on-surface-muted text-[13px]">0s</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <button type="button" id="btn-reset-stats" class="w-full py-3 px-4 rounded-lg border border-slate-300 bg-white text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 active:scale-[0.99] dark:border-white/10 dark:bg-surface-lowest/40 dark:text-on-surface-muted dark:shadow-none dark:hover:bg-surface-low/60">
           Reset statistics
@@ -2007,7 +2316,7 @@
     aria-labelledby="highscores-title"
   >
     <div
-      class="modal-panel w-full max-w-md rounded-2xl bg-white dark:bg-surface modal-overlay-panel-shadow border border-slate-300 dark:border-0 max-h-[min(88dvh,32rem)] flex flex-col"
+      class="modal-panel w-full max-w-md rounded-2xl bg-white dark:bg-surface modal-overlay-panel-shadow border border-slate-300 dark:border-0 max-h-[min(92dvh,50rem)] flex flex-col"
     >
       <div class="flex justify-between items-start gap-3 px-5 pt-5 pb-3 shrink-0 border-b border-slate-200 dark:border-white/10">
         <div class="min-w-0 flex items-start gap-3">
@@ -2028,7 +2337,7 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
-      <div class="px-5 py-4 flex-1 min-h-0 overflow-y-auto overscroll-y-contain">
+      <div class="px-5 py-4 flex-1 min-h-0 overflow-y-auto overscroll-y-contain sm:overflow-y-visible">
         <div id="leaderboard-table-wrap" class="hidden overflow-hidden rounded-lg border border-slate-300 bg-white shadow-sm dark:border-white/10 dark:bg-surface-lowest/40 dark:shadow-none">
           <table class="w-full text-sm text-left border-collapse">
             <thead>
@@ -2076,6 +2385,24 @@
         </button>
       </div>
       <div class="px-5 py-4 flex-1 min-h-0 overflow-y-auto overscroll-y-contain space-y-3">
+        <div class="flex items-center gap-3 rounded-lg border border-slate-300 bg-white px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-surface-lowest/40 dark:shadow-none">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
+          </span>
+          <p class="min-w-0 text-[13px] text-slate-600 dark:text-on-surface-muted">Same draws/numbers for both - fair match.</p>
+        </div>
+        <div class="flex items-center gap-3 rounded-lg border border-slate-300 bg-white px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-surface-lowest/40 dark:shadow-none">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+          </span>
+          <p class="min-w-0 text-[13px] text-slate-600 dark:text-on-surface-muted">P1 plays one full run, then pass the device to P2. P2 plays a full run too.</p>
+        </div>
+        <div class="flex items-center gap-3 rounded-lg border border-slate-300 bg-white px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-surface-lowest/40 dark:shadow-none">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.85a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+          </span>
+          <p class="min-w-0 text-[13px] text-slate-600 dark:text-on-surface-muted">Revealed scores: most slots wins. If tied, fastest time wins.</p>
+        </div>
         <div class="tp-info-visual" aria-hidden="true">
           <div class="tp-info-row">
             <div class="tp-info-phone">
@@ -2129,24 +2456,6 @@
             </div>
           </div>
           <p class="tp-info-legend">More slots wins · faster time if tied</p>
-        </div>
-        <div class="flex items-center gap-3 rounded-lg border border-slate-300 bg-white px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-surface-lowest/40 dark:shadow-none">
-          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
-          </span>
-          <p class="text-xs font-medium text-slate-700 dark:text-on-surface-muted leading-snug">Same draws/numbers for both - fair match.</p>
-        </div>
-        <div class="flex items-center gap-3 rounded-lg border border-slate-300 bg-white px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-surface-lowest/40 dark:shadow-none">
-          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
-          </span>
-          <p class="text-xs font-medium text-slate-700 dark:text-on-surface-muted leading-snug">P1 plays one full run, then pass the device to P2. P2 plays a full run too.</p>
-        </div>
-        <div class="flex items-center gap-3 rounded-lg border border-slate-300 bg-white px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-surface-lowest/40 dark:shadow-none">
-          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-primary/20 dark:text-primary" aria-hidden="true">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.85a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
-          </span>
-          <p class="text-xs font-medium text-slate-700 dark:text-on-surface-muted leading-snug">Revealed scores: most slots wins. If tied, fastest time wins.</p>
         </div>
       </div>
       <div class="px-5 pb-5 pt-2 shrink-0 border-t border-slate-100 dark:border-white/5">

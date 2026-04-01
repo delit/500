@@ -58,6 +58,15 @@ Implementation notes:
 - **Two player**: `modes/twoplayer.js` + hooks in `app.js` (`OneTo500Hooks`, `OneTo500Game`)
 - No build step — deploy the repo root as static hosting
 
+## SEO & discovery (static)
+
+- **`robots.txt`** — allows crawlers; points to the sitemap.
+- **`sitemap.xml`** — canonical entry for the live site (currently **https://delit.github.io/500/**).
+- **`llms.txt`** — short machine-readable summary for AI assistants (informal convention).
+- **`og-image.png`** (1200×630) + **`og-image.svg`** — social preview; referenced from `index.html` meta and JSON-LD.
+
+If you deploy under another domain or path, replace `https://delit.github.io/500` in **`index.html`** (head), **`robots.txt`**, **`sitemap.xml`**, and **`llms.txt`**.
+
 ## License
 
 **Personal, non-commercial use only** — you may run and study the project for yourself; you may **not** use it for business/commercial purposes, sell or license the code, or use it on behalf of a company or organization without written permission.
