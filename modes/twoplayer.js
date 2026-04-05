@@ -143,8 +143,11 @@
   function computeWinner(p1, p2) {
     if (p1.score > p2.score) return 1;
     if (p2.score > p1.score) return 2;
-    if (p1.timeMs < p2.timeMs) return 1;
-    if (p2.timeMs < p1.timeMs) return 2;
+    /* Same score: break ties by whole seconds (matches on-screen m:ss); equal seconds => draw. */
+    const s1 = Math.floor(Math.max(0, p1.timeMs) / 1000);
+    const s2 = Math.floor(Math.max(0, p2.timeMs) / 1000);
+    if (s1 < s2) return 1;
+    if (s2 < s1) return 2;
     return 0;
   }
 

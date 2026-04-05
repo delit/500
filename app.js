@@ -82,6 +82,9 @@
   let skipNextOverlayPauseDepthBump = false;
   /** False after run ends (freezeGameTimer); blocks overlay-resume from restarting the interval. */
   let gameTimerMayResume = true;
+  /** While tab/app is in background: run clock must not advance (wall clock would skew stats). */
+  let gameTimerVisibilityPauseActive = false;
+  let gameTimerVisibilitySavedMs = 0;
 
   const $ = (sel, el = document) => el.querySelector(sel);
 
@@ -198,16 +201,23 @@
     }
 
     if (gameTimerOverlayPauseDepth > 0) return;
-    el.textContent = formatGameElapsed(Date.now() - gameStartMs);
+    el.textContent = formatGameElapsed(currentRunElapsedMs());
   }
 
   function startGameTimer() {
     stopGameTimer();
+    clearGameTimerVisibilityPause();
     gameTimerMayResume = true;
     gameStartMs = Date.now();
     const el = gameTimerDom();
     if (el) {
       el.textContent = "0:00";
+      if (document.hidden) {
+        gameTimerVisibilityPauseActive = true;
+        gameTimerVisibilitySavedMs = 0;
+        gameStartMs = Date.now();
+        return;
+      }
       gameTimerId = window.setInterval(tickGameTimer, 1000);
       tickGameTimer();
     }
@@ -221,16 +231,18 @@
   }
 
   function freezeGameTimer() {
-    stopGameTimer();
-    gameTimerMayResume = false;
     const el = gameTimerDom();
     if (gameStartMs && el) {
-      el.textContent = formatGameElapsed(Date.now() - gameStartMs);
+      el.textContent = formatGameElapsed(currentRunElapsedMs());
     }
+    stopGameTimer();
+    clearGameTimerVisibilityPause();
+    gameTimerMayResume = false;
   }
 
   function resetGameTimerDisplay() {
     stopGameTimer();
+    clearGameTimerVisibilityPause();
     gameTimerMayResume = false;
     gameStartMs = 0;
     const el = gameTimerDom();
@@ -245,6 +257,41 @@
   /** True while a run is in progress and the corner clock should advance (not game over / frozen end). */
   function shouldFreezeGameClockForOpenOverlay() {
     return Boolean(gameStartMs) && gameTimerMayResume && !isGameOverBoard;
+  }
+
+  function clearGameTimerVisibilityPause() {
+    gameTimerVisibilityPauseActive = false;
+    gameTimerVisibilitySavedMs = 0;
+  }
+
+  function runInProgressForVisibilityTimer() {
+    return Boolean(gameStartMs && gameTimerMayResume && !isGameOverBoard && isOnGameScreen());
+  }
+
+  function applyGameTimerDocumentHidden() {
+    if (!runInProgressForVisibilityTimer() || gameTimerVisibilityPauseActive) return;
+    gameTimerVisibilitySavedMs = currentRunElapsedMs();
+    gameTimerVisibilityPauseActive = true;
+    stopGameTimer();
+  }
+
+  function applyGameTimerDocumentVisible() {
+    if (!gameTimerVisibilityPauseActive) return;
+    gameTimerVisibilityPauseActive = false;
+    if (!gameStartMs || !gameTimerMayResume || isGameOverBoard) return;
+    gameStartMs = Date.now() - gameTimerVisibilitySavedMs;
+    if (gameTimerOverlayPauseDepth > 0) return;
+    if (gameTimerId != null) return;
+    gameTimerId = window.setInterval(tickGameTimer, 1000);
+    tickGameTimer();
+  }
+
+  /** Elapsed ms for this run (stats + UI); excludes background tab time and overlay pauses. */
+  function currentRunElapsedMs() {
+    if (!gameStartMs) return 0;
+    if (gameTimerVisibilityPauseActive) return Math.max(0, gameTimerVisibilitySavedMs);
+    if (gameTimerOverlayPauseDepth > 0) return Math.max(0, gameTimerElapsedMsWhenPaused);
+    return Math.max(0, Date.now() - gameStartMs);
   }
 
   function resetGameTimerOverlayPauseState() {
@@ -264,13 +311,14 @@
       return;
     }
     if (!shouldFreezeGameClockForOpenOverlay()) return;
+    const elapsedMsFrozen = currentRunElapsedMs();
     gameTimerOverlayPauseDepth = 1;
-    gameTimerElapsedMsWhenPaused = Date.now() - gameStartMs;
-    gameStartMs = Date.now() - gameTimerElapsedMsWhenPaused;
+    gameTimerElapsedMsWhenPaused = elapsedMsFrozen;
+    gameStartMs = Date.now() - elapsedMsFrozen;
     stopGameTimer();
     const el = gameTimerDom();
     if (el) {
-      el.textContent = formatGameElapsed(gameTimerElapsedMsWhenPaused);
+      el.textContent = formatGameElapsed(currentRunElapsedMs());
     }
   }
 
@@ -1346,7 +1394,7 @@
   function gameOver(reason = "invalid") {
     clearRollSettleTimer();
     hidePostGameoverBar();
-    const elapsedMs = gameStartMs ? Date.now() - gameStartMs : 0;
+    const elapsedMs = currentRunElapsedMs();
     freezeGameTimer();
     let hintNum = null;
     if (reason === "invalid" || reason === "unwinnable-draw") {
@@ -1408,7 +1456,7 @@
   }
 
   function win() {
-    const elapsedMs = gameStartMs ? Date.now() - gameStartMs : 0;
+    const elapsedMs = currentRunElapsedMs();
     freezeGameTimer();
     const hooks = window.OneTo500Hooks;
     if (hooks && typeof hooks.handleRunEnd === "function") {
@@ -1907,7 +1955,12 @@
     });
 
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden || !audioCtx) return;
+      if (document.hidden) {
+        applyGameTimerDocumentHidden();
+        return;
+      }
+      applyGameTimerDocumentVisible();
+      if (!audioCtx) return;
       try {
         void audioCtx.resume();
       } catch (_) {}
